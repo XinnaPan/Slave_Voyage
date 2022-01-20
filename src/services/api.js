@@ -6,7 +6,7 @@ export default {
   loginUser: 'POST /user/login',
 
   queryUser: '/user/:id',
-  queryUserList: '/users',
+  queryVoyageList: '/sv/voyage/',
   updateUser: 'Patch /user/:id',
   createUser: 'POST /user',
   removeUser: 'DELETE /user/:id',

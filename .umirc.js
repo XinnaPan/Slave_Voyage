@@ -56,17 +56,30 @@ export default {
   // Webpack Configuration
   proxy: {
     '/api/v1/weather': {
-      target: 'https://api.seniverse.com/',
+      target: 'http://localhost:4567/',
       changeOrigin: true,
-      pathRewrite: { '^/api/v1/weather': '/v3/weather' },
+      pathRewrite: { '^/api/v1/weather': '/voyage' },
     },
 
 
-   /* '/api/v1/user/':{
+   '/api/v1/sv':{
+      target:'http://127.0.0.1:8000/',
+      changeOrigin: true,
+      pathRewrite: { '^/api/v1/sv': '' },
+    },
+
+     /*'/api/v1/sv/':{
+      target:'http://localhost:4567/',
+      changeOrigin: true,
+      pathRewrite: { '^/api/v1/sv/': '' },
+     },*/
+
+     '/api/v1/user/':{
       target:'http://localhost:4567/',
       changeOrigin: true,
       pathRewrite: { '^/api/v1/user/': '' },
-    }*/
+     }
+
   },
   // Theme for antd
   // https://ant.design/docs/react/customize-theme

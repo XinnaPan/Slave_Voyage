@@ -80,21 +80,19 @@ export default {
     *query({ payload }, { call, put, select }) {
       // store isInit to prevent query trigger by refresh
       const isInit = store.get('isInit')
-      //console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:");
-      //console.log(isInit)
+
       if (isInit) {
         goDashboard()
         return
       }
       const { locationPathname } = yield select(_ => _.app)
       const { success, user } = yield call(queryUserInfo, payload)
+     
       if (success && user) {
         const { list } = yield call(queryRouteList)
         const { permissions } = user
         let routeList = list
 
-       // console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:");
-      //  console.log(routeList);
         if (
           permissions.role === ROLE_TYPE.ADMIN ||
           permissions.role === ROLE_TYPE.DEVELOPER

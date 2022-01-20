@@ -80,9 +80,37 @@ class User extends PureComponent {
   get listProps() {
     const { dispatch, user, loading } = this.props
     const { list, pagination, selectedRowKeys } = user
+  
+    console.log("list");
+    console.log(list);
 
+    let newList=[];
+    list.forEach(e =>{ 
+      console.log("get data")
+      console.log(e);
+      console.log(e["id"]);
+      //console.log("place" in e["voyage_itinerary"]["port_of_departure"])
+
+      let data1="null";
+      let data2="null";
+      if(e["voyage_itinerary"]["port_of_departure"] !== null)
+        data1=e["voyage_itinerary"]["port_of_departure"]["place"]
+      else data1="null"
+      if(e["voyage_itinerary"]["int_first_port_emb"]!==null)
+        data2=e["voyage_itinerary"]["int_first_port_emb"]["place"]
+      else data2="null"
+      console.log(data1)
+      console.log(data2)
+
+      //console.log(e["voyage_itinerary"]["int_first_port_emb"]["place"])
+      newList.push({
+        id:e["id"], 
+        data1,
+        data2})
+      });
+    
     return {
-      dataSource: list,
+      dataSource: newList,
       loading: loading.effects['user/query'],
       pagination,
       onChange: page => {

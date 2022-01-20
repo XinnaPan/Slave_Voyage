@@ -142,7 +142,7 @@ module.exports = {
     res.json(response)
   },
 
-  [`GET ${ApiPrefix}/users`](req, res) {
+  /*[`GET ${ApiPrefix}/users`](req, res) {
     const { query } = req
     let { pageSize, page, ...other } = query
     pageSize = pageSize || 10
@@ -180,7 +180,7 @@ module.exports = {
       data: newData.slice((page - 1) * pageSize, page * pageSize),
       total: newData.length,
     })
-  },
+  },*/
 
   [`POST ${ApiPrefix}/users/delete`](req, res) {
     const { ids=[] } = req.body

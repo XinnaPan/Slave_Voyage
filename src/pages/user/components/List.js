@@ -30,74 +30,25 @@ class List extends PureComponent {
 
     const columns = [
       {
-        title: <Trans>Avatar</Trans>,
-        dataIndex: 'avatar',
-        key: 'avatar',
+        title: <Trans>Votage ID</Trans>,
+        dataIndex: 'id',
+        key: 'id',
         width: '7%',
-        fixed: 'left',
-        render: text => <Avatar style={{ marginLeft: 8 }} src={text} />,
+        
       },
       {
-        title: <Trans>Name</Trans>,
-        dataIndex: 'name',
-        key: 'name',
-        render: (text, record) => <Link to={`user/${record.id}`}>{text}</Link>,
-      },
-      {
-        title: <Trans>NickName</Trans>,
-        dataIndex: 'nickName',
-        key: 'nickName',
-      },
-      {
-        title: <Trans>Age</Trans>,
-        dataIndex: 'age',
-        width: '6%',
-        key: 'age',
-      },
-      {
-        title: <Trans>Gender</Trans>,
-        dataIndex: 'isMale',
-        key: 'isMale',
+        title: <Trans>port_of_departure</Trans>,
+        dataIndex: 'data1',
+        key: 'data1',
         width: '7%',
-        render: text => <span>{text ? 'Male' : 'Female'}</span>,
+        
       },
       {
-        title: <Trans>Phone</Trans>,
-        dataIndex: 'phone',
-        key: 'phone',
+        title: <Trans>int_first_port_emb</Trans>,
+        dataIndex: 'data2',
+        key: 'data2',
       },
-      {
-        title: <Trans>Email</Trans>,
-        dataIndex: 'email',
-        key: 'email',
-      },
-      {
-        title: <Trans>Address</Trans>,
-        dataIndex: 'address',
-        key: 'address',
-      },
-      {
-        title: <Trans>CreateTime</Trans>,
-        dataIndex: 'createTime',
-        key: 'createTime',
-      },
-      {
-        title: <Trans>Operation</Trans>,
-        key: 'operation',
-        fixed: 'right',
-        width: '8%',
-        render: (text, record) => {
-          return (
-            <DropOption
-              onMenuClick={e => this.handleMenuClick(record, e)}
-              menuOptions={[
-                { key: '1', name: t`Update` },
-                { key: '2', name: t`Delete` },
-              ]}
-            />
-          )
-        },
-      },
+     
     ]
 
     return (

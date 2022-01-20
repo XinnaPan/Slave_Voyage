@@ -10,6 +10,7 @@ window.cancelRequest = new Map()
 export default function request(options) {
   let { data, url } = options
   const cloneData = cloneDeep(data)
+  //console.log(options)
 
   try {
     let domain = ''
@@ -39,11 +40,16 @@ export default function request(options) {
       cancel,
     })
   })
+  console.log("url")
+  console.log(options)
 
   return axios(options)
     .then(response => {
+      //console.log("response")
+      //console.log(response)
       const { statusText, status, data } = response
-
+      console.log("data")
+      console.log(data)
       let result = {}
       if (typeof data === 'object') {
         result = data
@@ -53,7 +59,9 @@ export default function request(options) {
       } else {
         result.data = data
       }
-
+      console.log("result")
+      console.log(result)
+      
       return Promise.resolve({
         success: true,
         message: statusText,

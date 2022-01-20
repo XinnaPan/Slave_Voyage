@@ -12,13 +12,22 @@ const gen = params => {
     method = paramsArray[0]
     url = apiPrefix + paramsArray[1]
   }
-
-  return function(data) {
-    return request({
-      url,
-      data,
-      method,
-    })
+  if(method === 'GET'){
+    return function(data) {
+      return request({
+        url,
+        params:data,
+        method,
+      })
+    }
+  } else{
+    return function(data) {
+      return request({
+        url,
+        data,
+        method,
+      })
+    }
   }
 }
 
@@ -30,7 +39,7 @@ for (const key in api) {
 APIFunction.queryWeather = params => {
   params.key = 'i7sau1babuzwhycn'
   return request({
-    url: `${apiPrefix}/weather/now.json`,
+    url: `${apiPrefix}/weather`,
     data: params,
   })
 }
