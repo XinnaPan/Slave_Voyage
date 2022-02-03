@@ -45,8 +45,8 @@ export default function request(options) {
 
   return axios(options)
     .then(response => {
-      //console.log("response")
-      //console.log(response)
+      console.log("response")
+      console.log(response)
       const { statusText, status, data } = response
       console.log("data")
       console.log(data)

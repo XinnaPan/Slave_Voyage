@@ -62,13 +62,13 @@ export default {
     },
 
 
-   '/api/v1/sv':{
+  '/api/v1/sv':{
       target:'http://127.0.0.1:8000/',
       changeOrigin: true,
       pathRewrite: { '^/api/v1/sv': '' },
     },
 
-     /*'/api/v1/sv/':{
+     /* '/api/v1/sv/':{
       target:'http://localhost:4567/',
       changeOrigin: true,
       pathRewrite: { '^/api/v1/sv/': '' },

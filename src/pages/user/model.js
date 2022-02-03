@@ -47,7 +47,7 @@ export default modelExtend(pageModel, {
 
       const params={
         results_per_page:Number(payload.pageSize),
-        results_page:Number(payload.page)-1,
+        results_page:Number(payload.page),
 
       }
       const data = yield call(queryVoyageList, params)
