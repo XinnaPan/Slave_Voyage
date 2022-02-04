@@ -25,31 +25,25 @@ class List extends PureComponent {
     }
   }
 
+  
   render() {
     const { onDeleteItem, onEditItem, ...tableProps } = this.props
 
-    const columns = [
+    var columns// = tableProps.titles.map(t=>[{title:<Trans>`${t}`</Trans>,dataIndex:t,key:t}])
+    =[
       {
         title: <Trans>Votage ID</Trans>,
         dataIndex: 'id',
         key: 'id',
         width: '7%',
         
-      },
-      {
-        title: <Trans>port_of_departure</Trans>,
-        dataIndex: 'data1',
-        key: 'data1',
-        width: '7%',
-        
-      },
-      {
-        title: <Trans>int_first_port_emb</Trans>,
-        dataIndex: 'data2',
-        key: 'data2',
-      },
-     
-    ]
+      }]
+
+      tableProps.titles.map(t=>{columns.push(
+        {title:<Trans>{t}</Trans>,dataIndex:t,key:t}
+        )})
+      
+
 
     return (
       <Table

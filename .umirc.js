@@ -7,7 +7,6 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 
 // how to speed compile: https://umijs.org/guide/boost-compile-speed
 export default {
-  // IMPORTANT! change next line to yours or delete. And hide in dev
   publicPath: isDevelopment ? '/' : '/',
   alias: {
     api: resolve(__dirname, './src/services/'),

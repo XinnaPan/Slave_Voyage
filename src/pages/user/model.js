@@ -4,6 +4,7 @@ import api from 'api'
 import { pageModel } from 'utils/model'
 
 const {
+  queryTableTitles,
   queryVoyageList,
   createUser,
   removeUser,
@@ -19,6 +20,13 @@ export default modelExtend(pageModel, {
     modalVisible: false,
     modalType: 'create',
     selectedRowKeys: [],
+
+
+    expandedKeys:[],
+    checkedKeys:[],
+    selectedKeys:[],
+    autoExpandParent:false
+
   },
 
   subscriptions: {
@@ -52,11 +60,14 @@ export default modelExtend(pageModel, {
       }
       const data = yield call(queryVoyageList, params)
 
-      if (data) {
+      const titles= yield call(queryTableTitles,params)
+
+      if (data && titles) {
        
         yield put({
           type: 'querySuccess',
           payload: {
+            titles: titles,
             list: data.list,
             pagination: {
               current: Number(payload.page) || 1,
@@ -121,5 +132,19 @@ export default modelExtend(pageModel, {
     hideModal(state) {
       return { ...state, modalVisible: false }
     },
+
+    expandedKeysf(state,{payload}) {
+      return { ...state,  expandedKeys:payload ,autoExpandParent:false}
+    },
+
+    checkedKeysf(state,{payload}) {
+      return { ...state, checkedKeys:payload }
+    },
+
+    selectedKeysf(state,{payload}) {
+      return { ...state, selectedKeys:payload }
+    },
+
+
   },
 })

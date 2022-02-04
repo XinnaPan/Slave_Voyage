@@ -47,18 +47,62 @@ class User extends PureComponent {
     })
   }
 
+  getName=(dic,curList,route)=>{
+    let data=[]
+    curList.forEach(c=>{
+      let res={}
+      res['title']=c
+      res['key']=route+c
+      if(dic && dic[c]) {
+        res['children']=this.getName(dic,dic[c],route+c)
+      }
+      data.push(res)
+    })
+    return data
+  }
+
   get modalProps() {
     const { dispatch, user, loading } = this.props
-    const { currentItem, modalVisible, modalType } = user
+    const { titles,currentItem, modalVisible, modalType,
+      expandedKeys,
+    checkedKeys,
+    selectedKeys,
+    autoExpandParent, } = user
 
+    let titlesNames= []
+    Object.keys(titles).map((key) => titlesNames.push(key.split("__")));
+    titlesNames.splice(0,4)
+
+    let arr_parent=new Set()
+    let dic_child={};
+    titlesNames.forEach(t=>{
+      arr_parent.add(t[0]);
+      for(let cnt=1;cnt<t.length;cnt++){
+        if(!dic_child[t[cnt-1]]){
+          dic_child[t[cnt-1]]=new Set()
+        }
+        dic_child[t[cnt-1]].add(t[cnt])
+
+      }
+    })
+
+    var treeData=this.getName(dic_child,arr_parent,"")
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!")
+    console.log(treeData)
     return {
-      item: modalType === 'create' ? {} : currentItem,
+      treePro:{
+        expandedKeys,
+        checkedKeys,
+        selectedKeys,
+        autoExpandParent,
+      },
+      item:treeData,
       visible: modalVisible,
       destroyOnClose: true,
       maskClosable: false,
       confirmLoading: loading.effects[`user/${modalType}`],
       title: `${
-        modalType === 'create' ? t`Create User` : t`Update User`
+        modalType === 'create' ? t`Choose Column` : t`Update User`
       }`,
       centered: true,
       onOk: data => {
@@ -74,24 +118,79 @@ class User extends PureComponent {
           type: 'user/hideModal',
         })
       },
+
+      onExpand: expandedKeysValue => {
+        dispatch({
+          type:'user/expandedKeysf',
+          payload:expandedKeysValue
+        })
+      },
+
+      onCheck : checkedKeysValue => {
+       // console.log("??????????",checkedKeysValue)
+        dispatch({
+          type:'user/checkedKeysf',
+          payload:checkedKeysValue
+        })
+      },
+
+      onSelect : selectedKeysValue=> {
+
+        dispatch({
+          type:'user/selectedKeysf',
+          payload:selectedKeysValue
+        })
+      },
     }
   }
 
   get listProps() {
     const { dispatch, user, loading } = this.props
-    const { list, pagination, selectedRowKeys } = user
-  
+    const { titles,list, pagination, selectedRowKeys } = user
+    
+    const titlesSelected = [1,2]
+
     console.log("list");
     console.log(list);
+    console.log("titles");
+    console.log(titles);
+
+    let titlesNames= []
+    Object.keys(titles).map((key) => titlesNames.push(key.split("__")));
+    titlesNames.splice(0,4)
+    
+    let res_titles=[]
+    for(var ind in titlesSelected) {
+      let title_name_tmp=''
+      const tmp_name=titlesNames[titlesSelected[ind]]
+      tmp_name.forEach(tmp => {
+        if(title_name_tmp!=='')
+          title_name_tmp+='__'
+        title_name_tmp+=tmp
+      })
+      res_titles.push(title_name_tmp)
+    }
+
 
     let newList=[];
     list.forEach(e =>{ 
-      console.log("get data")
-      console.log(e);
-      console.log(e["id"]);
-      //console.log("place" in e["voyage_itinerary"]["port_of_departure"])
+      let tmpData={}
+      tmpData['id']=e["id"]
+      let cnt=0;
+      for(var ind in titlesSelected) {
+        const tmp_name=titlesNames[titlesSelected[ind]]
+        let obj=e;
+        tmp_name.forEach(tmp => {
+          if(obj === null)
+            return;
+          obj=obj[tmp];
+        })
+        tmpData[res_titles[cnt]]=obj;
+        cnt++;
 
-      let data1="null";
+      }
+      newList.push(tmpData)
+      /*let data1="null";
       let data2="null";
       if(e["voyage_itinerary"]["port_of_departure"] !== null)
         data1=e["voyage_itinerary"]["port_of_departure"]["place"]
@@ -99,20 +198,19 @@ class User extends PureComponent {
       if(e["voyage_itinerary"]["int_first_port_emb"]!==null)
         data2=e["voyage_itinerary"]["int_first_port_emb"]["place"]
       else data2="null"
-      console.log(data1)
-      console.log(data2)
-
-      //console.log(e["voyage_itinerary"]["int_first_port_emb"]["place"])
       newList.push({
         id:e["id"], 
         data1,
-        data2})
+        data2})*/
       });
+    
+      //console.log(newList)
     
     return {
       dataSource: newList,
       loading: loading.effects['user/query'],
       pagination,
+      titles:res_titles,
       onChange: page => {
         this.handleRefresh({
           page: page.current,
