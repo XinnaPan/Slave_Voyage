@@ -10,12 +10,7 @@ const avatar = '//cdn.antd-admin.zuiidea.com/bc442cf0cc6f7940dcc567e465048d1a8d6
 export default modelExtend(model, {
   namespace: 'dashboard',
   state: {
-    weather: {
-      city: '深圳',
-      temperature: '30',
-      name: '晴',
-      icon: '//cdn.antd-admin.zuiidea.com/sun.png',
-    },
+
     sales: [],
     quote: {
       avatar,
@@ -51,25 +46,6 @@ export default modelExtend(model, {
         payload: data,
       })
     },
-    *queryWeather({ payload = {} }, { call, put }) {
-      payload.location = 'shenzhen'
-      const result = yield call(queryWeather, payload)
-      const { success } = result
-      if (success) {
-        const data = result.results[0]
-        const weather = {
-          city: data.location.name,
-          temperature: data.now.temperature,
-          name: data.now.text,
-          icon: `//cdn.antd-admin.zuiidea.com/web/icons/3d_50/${data.now.code}.png`,
-        }
-        yield put({
-          type: 'updateState',
-          payload: {
-            weather,
-          },
-        })
-      }
-    },
+    
   },
 })

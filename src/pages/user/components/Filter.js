@@ -5,7 +5,7 @@ import { FilterItem } from 'components'
 import { Trans } from "@lingui/macro"
 import { t } from "@lingui/macro"
 import { Button, Row, Col, DatePicker, Form, Input, Cascader } from 'antd'
-import city from 'utils/city'
+//import city from 'utils/city'
 
 const { Search } = Input
 const { RangePicker } = DatePicker
@@ -98,7 +98,7 @@ class Filter extends Component {
             <Form.Item name="address">
               <Cascader
                 style={{ width: '100%' }}
-                options={city}
+                //options={city}
                 placeholder={t`Please pick an address`}
               />
             </Form.Item>

@@ -6,15 +6,7 @@ import { Color } from 'utils'
 import { Page, ScrollBar } from 'components'
 import {
   NumberCard,
-  Quote,
-  Sales,
-  Weather,
-  RecentSales,
-  Comments,
-  Completed,
-  Browser,
-  Cpu,
-  User,
+  
 } from './components'
 import styles from './index.less'
 import store from 'store'
@@ -36,16 +28,9 @@ class Dashboard extends PureComponent {
     const { avatar, username } = userDetail
     const { dashboard, loading } = this.props
     const {
-      weather,
-      sales,
-      quote,
+
       numbers,
-      recentSales,
-      comments,
-      completed,
-      browser,
-      cpu,
-      user,
+
     } = dashboard
 
     const numberCards = numbers.map((item, key) => (

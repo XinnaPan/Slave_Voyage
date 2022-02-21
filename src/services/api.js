@@ -6,7 +6,6 @@ export default {
   loginUser: 'POST /user/login',
 
   queryUser: '/user/:id',
-  queryVoyageList: '/sv/voyage/',
   updateUser: 'Patch /user/:id',
   createUser: 'POST /user',
   removeUser: 'DELETE /user/:id',
@@ -16,4 +15,6 @@ export default {
 
   queryDashboard: '/dashboard',
   queryTableTitles: 'OPTIONS /sv/voyage/',
+  queryVoyageList: '/sv/voyage/',
+
 }

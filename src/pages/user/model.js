@@ -53,14 +53,18 @@ export default modelExtend(pageModel, {
   effects: {
     *query({ payload = {} }, { call, put }) {
 
-      const params={
+      const params_data={
         results_per_page:Number(payload.pageSize),
         results_page:Number(payload.page),
-
+        
       }
-      const data = yield call(queryVoyageList, params)
+      const params_title={
+        
+      hierarchical:'False'
+      }
+      const data = yield call(queryVoyageList, params_data)
 
-      const titles= yield call(queryTableTitles,params)
+      const titles= yield call(queryTableTitles,params_title)
 
       if (data && titles) {
        

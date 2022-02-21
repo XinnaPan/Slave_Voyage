@@ -9,6 +9,8 @@ import { stringify } from 'qs'
 import List from './components/List'
 import Filter from './components/Filter'
 import Modal from './components/Modal'
+import { Trans } from "@lingui/macro"
+
 
 @connect(({ user, loading }) => ({ user, loading }))
 class User extends PureComponent {
@@ -47,48 +49,80 @@ class User extends PureComponent {
     })
   }
 
-  getName=(dic,curList,route)=>{
+  getName=(dic,curList,route,visited)=>{
     let data=[]
     curList.forEach(c=>{
       let res={}
-      res['title']=c
-      res['key']=route+c
-      if(dic && dic[c]) {
-        res['children']=this.getName(dic,dic[c],route+c)
+      var title_start_pos = c.indexOf('_')
+      res['title']=c.slice(title_start_pos+1)
+      res['key']=route+(route!==''?'__':'')+res['title']
+      if(dic && dic[c] && !visited.has(c)) {
+        visited.add(c)
+        res['children']=this.getName(dic,dic[c],res['key'],visited)
+        visited.delete(c)
       }
       data.push(res)
     })
     return data
   }
 
+  getValue = (e, titles_split,cur_ind, res )=>{
+
+      var obj=e
+      while(cur_ind < titles_split.length) {
+        if(obj === null)
+          break
+        if(Array.isArray(obj)){
+          break;
+        } else 
+          obj=obj[titles_split[cur_ind]]
+        cur_ind = cur_ind + 1  
+      } 
+
+      if(Array.isArray(obj)) {
+        var cnt=0
+        for(cnt=0; cnt<obj.length;cnt++)
+          res=this.getValue(obj[cnt], titles_split,cur_ind, res)
+        return res
+      } 
+
+      if( res.length>0)
+        res.push(';')
+      res.push(obj)
+      return res
+
+   
+  }
+
+
   get modalProps() {
     const { dispatch, user, loading } = this.props
     const { titles,currentItem, modalVisible, modalType,
       expandedKeys,
-    checkedKeys,
-    selectedKeys,
-    autoExpandParent, } = user
+      checkedKeys,
+      selectedKeys,
+      autoExpandParent, } = user
 
     let titlesNames= []
     Object.keys(titles).map((key) => titlesNames.push(key.split("__")));
     titlesNames.splice(0,4)
 
+    //console.log("titlesNames =",titlesNames)
     let arr_parent=new Set()
     let dic_child={};
     titlesNames.forEach(t=>{
-      arr_parent.add(t[0]);
+      arr_parent.add(`0_${t[0]}`);
       for(let cnt=1;cnt<t.length;cnt++){
-        if(!dic_child[t[cnt-1]]){
-          dic_child[t[cnt-1]]=new Set()
+        if(!dic_child[`${cnt-1}_${t[cnt-1]}`]){
+          dic_child[`${cnt-1}_${t[cnt-1]}`]=new Set()
         }
-        dic_child[t[cnt-1]].add(t[cnt])
+        dic_child[`${cnt-1}_${t[cnt-1]}`].add(`${cnt}_${t[cnt]}`)
 
       }
     })
 
-    var treeData=this.getName(dic_child,arr_parent,"")
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!")
-    console.log(treeData)
+    var visited = new Set()
+    var treeData=this.getName(dic_child,arr_parent,"",visited)
     return {
       treePro:{
         expandedKeys,
@@ -126,15 +160,22 @@ class User extends PureComponent {
         })
       },
 
-      onCheck : checkedKeysValue => {
-       // console.log("??????????",checkedKeysValue)
+      onCheck : (checkedKeysValue,checkedNodes) => {
+        console.log("check=",checkedNodes)
+        var node=[]
+        checkedNodes['checkedNodes'].forEach( e =>{
+          console.log("??",e['children'])
+          if(e['children'] === undefined) 
+            node.push(e['key'])
+        })
         dispatch({
           type:'user/checkedKeysf',
-          payload:checkedKeysValue
+          payload:node
         })
       },
 
       onSelect : selectedKeysValue=> {
+        console.log("select",selectedKeysValue)
 
         dispatch({
           type:'user/selectedKeysf',
@@ -146,71 +187,56 @@ class User extends PureComponent {
 
   get listProps() {
     const { dispatch, user, loading } = this.props
-    const { titles,list, pagination, selectedRowKeys } = user
+    const { titles,list, pagination, selectedRowKeys,checkedKeys } = user
     
-    const titlesSelected = [1,2]
+    //const titlesSelected = [1,2]
 
-    console.log("list");
-    console.log(list);
-    console.log("titles");
-    console.log(titles);
-
-    let titlesNames= []
-    Object.keys(titles).map((key) => titlesNames.push(key.split("__")));
-    titlesNames.splice(0,4)
+    let titles_split= {} 
+    checkedKeys.map( key => {
+      titles_split[key]=key.split("__")
+    });
     
-    let res_titles=[]
-    for(var ind in titlesSelected) {
-      let title_name_tmp=''
-      const tmp_name=titlesNames[titlesSelected[ind]]
-      tmp_name.forEach(tmp => {
-        if(title_name_tmp!=='')
-          title_name_tmp+='__'
-        title_name_tmp+=tmp
-      })
-      res_titles.push(title_name_tmp)
-    }
-
+    var columns=[
+    {
+      title: <Trans>Voyage ID</Trans>,
+      dataIndex: 'id',
+      key: 'id',
+      width: '7%',
+      
+    }]
+    checkedKeys.forEach(total_title => {
+      console.log(total_title)
+      if (titles[total_title] !== undefined) {
+        columns.push({
+          title: <Trans>{titles[total_title]['label']}</Trans>,
+          dataIndex: total_title,
+          key: total_title
+        }
+        )
+      }
+    })
 
     let newList=[];
     list.forEach(e =>{ 
-      let tmpData={}
-      tmpData['id']=e["id"]
-      let cnt=0;
-      for(var ind in titlesSelected) {
-        const tmp_name=titlesNames[titlesSelected[ind]]
-        let obj=e;
-        tmp_name.forEach(tmp => {
-          if(obj === null)
-            return;
-          obj=obj[tmp];
-        })
-        tmpData[res_titles[cnt]]=obj;
-        cnt++;
+      var tmpData={}
+      tmpData['id']=e['id']
 
-      }
+      checkedKeys.forEach(total_title => {
+        var res=[]
+        tmpData[total_title]=this.getValue(e, titles_split[total_title], 0, res )
+      })
       newList.push(tmpData)
-      /*let data1="null";
-      let data2="null";
-      if(e["voyage_itinerary"]["port_of_departure"] !== null)
-        data1=e["voyage_itinerary"]["port_of_departure"]["place"]
-      else data1="null"
-      if(e["voyage_itinerary"]["int_first_port_emb"]!==null)
-        data2=e["voyage_itinerary"]["int_first_port_emb"]["place"]
-      else data2="null"
-      newList.push({
-        id:e["id"], 
-        data1,
-        data2})*/
+      
       });
     
-      //console.log(newList)
     
+        
     return {
       dataSource: newList,
       loading: loading.effects['user/query'],
       pagination,
-      titles:res_titles,
+      //titles:res_titles,
+      columns,
       onChange: page => {
         this.handleRefresh({
           page: page.current,

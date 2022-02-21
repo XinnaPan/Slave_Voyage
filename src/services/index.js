@@ -12,7 +12,7 @@ const gen = params => {
     method = paramsArray[0]
     url = apiPrefix + paramsArray[1]
   }
-  if(method === 'GET'){
+  if(method === 'GET' || method === 'OPTIONS'){
     return function(data) {
       return request({
         url,
@@ -36,12 +36,5 @@ for (const key in api) {
   APIFunction[key] = gen(api[key])
 }
 
-APIFunction.queryWeather = params => {
-  params.key = 'i7sau1babuzwhycn'
-  return request({
-    url: `${apiPrefix}/weather`,
-    data: params,
-  })
-}
 
 export default APIFunction

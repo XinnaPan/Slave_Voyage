@@ -54,15 +54,11 @@ export default {
   },
   // Webpack Configuration
   proxy: {
-    '/api/v1/weather': {
-      target: 'http://localhost:4567/',
-      changeOrigin: true,
-      pathRewrite: { '^/api/v1/weather': '/voyage' },
-    },
+    
 
 
   '/api/v1/sv':{
-      target:'http://127.0.0.1:8000/',
+      target:' http://152.70.193.224:8000/',
       changeOrigin: true,
       pathRewrite: { '^/api/v1/sv': '' },
     },
@@ -74,7 +70,7 @@ export default {
      },*/
 
      '/api/v1/user/':{
-      target:'http://localhost:4567/',
+      target:'http://127.0.0.1:8000/',
       changeOrigin: true,
       pathRewrite: { '^/api/v1/user/': '' },
      }

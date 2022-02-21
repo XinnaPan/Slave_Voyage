@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { Form, Input, InputNumber, Radio, Modal, Cascader ,Tree} from 'antd'
 import { Trans } from "@lingui/macro"
-import city from 'utils/city'
 import { t } from "@lingui/macro"
 
 const FormItem = Form.Item
@@ -21,9 +20,7 @@ const formItemLayout = {
 
 class UserModal extends PureComponent {
   formRef = React.createRef()
-  handleOk = () => {
-    const { item = {}, onOk } = this.props
-  }
+
 
   render() {
     const { item , onOk,treePro, 
