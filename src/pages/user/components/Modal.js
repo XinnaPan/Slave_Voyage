@@ -30,7 +30,7 @@ class UserModal extends PureComponent {
     
 
     return (
-      <Modal {...modalProps} onOk={this.handleOk}>
+      <Modal {...modalProps} onOk={onOk}>
         <Tree
           checkable
           onExpand={onExpand}

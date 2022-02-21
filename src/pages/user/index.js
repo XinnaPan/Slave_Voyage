@@ -86,9 +86,11 @@ class User extends PureComponent {
         return res
       } 
 
+
+
       if( res.length>0)
         res.push(';')
-      res.push(obj)
+      res.push(obj.toString())
       return res
 
    
@@ -139,10 +141,10 @@ class User extends PureComponent {
         modalType === 'create' ? t`Choose Column` : t`Update User`
       }`,
       centered: true,
-      onOk: data => {
+      onOk: () => {
         dispatch({
           type: `user/${modalType}`,
-          payload: data,
+          payload: checkedKeys,
         }).then(() => {
           this.handleRefresh()
         })
@@ -164,7 +166,6 @@ class User extends PureComponent {
         console.log("check=",checkedNodes)
         var node=[]
         checkedNodes['checkedNodes'].forEach( e =>{
-          console.log("??",e['children'])
           if(e['children'] === undefined) 
             node.push(e['key'])
         })
@@ -187,12 +188,12 @@ class User extends PureComponent {
 
   get listProps() {
     const { dispatch, user, loading } = this.props
-    const { titles,list, pagination, selectedRowKeys,checkedKeys } = user
+    const { titles,list, pagination, selectedRowKeys,checkedTmpKeys } = user
     
     //const titlesSelected = [1,2]
 
     let titles_split= {} 
-    checkedKeys.map( key => {
+    checkedTmpKeys.map( key => {
       titles_split[key]=key.split("__")
     });
     
@@ -204,8 +205,8 @@ class User extends PureComponent {
       width: '7%',
       
     }]
-    checkedKeys.forEach(total_title => {
-      console.log(total_title)
+    checkedTmpKeys.forEach(total_title => {
+      //console.log(total_title)
       if (titles[total_title] !== undefined) {
         columns.push({
           title: <Trans>{titles[total_title]['label']}</Trans>,
@@ -221,7 +222,7 @@ class User extends PureComponent {
       var tmpData={}
       tmpData['id']=e['id']
 
-      checkedKeys.forEach(total_title => {
+      checkedTmpKeys.forEach(total_title => {
         var res=[]
         tmpData[total_title]=this.getValue(e, titles_split[total_title], 0, res )
       })

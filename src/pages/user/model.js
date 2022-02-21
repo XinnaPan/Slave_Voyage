@@ -24,7 +24,9 @@ export default modelExtend(pageModel, {
 
     expandedKeys:[],
     checkedKeys:[],
+    checkedTmpKeys:[],
     selectedKeys:[],
+
     autoExpandParent:false
 
   },
@@ -107,14 +109,16 @@ export default modelExtend(pageModel, {
       }
     },
 
-    *create({ payload }, { call, put }) {
-      const data = yield call(createUser, payload)
-      if (data.success) {
+    *create({ payload }, { put }) {
+
         yield put({ type: 'hideModal' })
-      } else {
-        throw data
-      }
+        yield put({ 
+          type: 'handleOk' ,
+          payload
+        })
     },
+
+
 
     *update({ payload }, { select, call, put }) {
       const id = yield select(({ user }) => user.currentItem.id)
@@ -149,6 +153,8 @@ export default modelExtend(pageModel, {
       return { ...state, selectedKeys:payload }
     },
 
-
+    handleOk(state,{payload}) {
+      return { ...state, checkedTmpKeys:payload }
+    },
   },
 })
