@@ -47,7 +47,7 @@ export default function request(options) {
     .then(response => {
       console.log("response")
       console.log(response)
-      const { statusText, status, data } = response
+      const { statusText, status, data, headers } = response
       console.log("data")
       console.log(data)
       let result = {}
@@ -59,8 +59,9 @@ export default function request(options) {
       } else {
         result.data = data
       }
-      console.log("result")
-      console.log(result)
+
+      result.headers=headers
+
       
       return Promise.resolve({
         success: true,

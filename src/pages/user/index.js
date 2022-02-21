@@ -197,14 +197,7 @@ class User extends PureComponent {
       titles_split[key]=key.split("__")
     });
     
-    var columns=[
-    {
-      title: <Trans>Voyage ID</Trans>,
-      dataIndex: 'id',
-      key: 'id',
-      width: '7%',
-      
-    }]
+    var columns=[]
     checkedTmpKeys.forEach(total_title => {
       //console.log(total_title)
       if (titles[total_title] !== undefined) {
