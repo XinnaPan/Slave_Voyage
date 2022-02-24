@@ -21,11 +21,16 @@ export const pageModel = modelExtend(model, {
       total: 0,
       pageSize: 10,
     },
+    titles:[],
+    treeData:[],
+
+
+
   },
 
   reducers: {
     querySuccess(state, { payload }) {
-      const { list, pagination,titles } = payload
+      const { list, pagination,titles,treeData} = payload
       return {
         ...state,
         list,
@@ -34,7 +39,22 @@ export const pageModel = modelExtend(model, {
           ...pagination,
         },
         titles,
+        treeData,
+
       }
     },
+
+    queryFilterUpdate(state, { payload }) {
+      const { list, pagination } = payload
+      return {
+        ...state,
+        list,
+        pagination: {
+          total:pagination.total
+        },
+        
+      }
+    }
+
   },
 })

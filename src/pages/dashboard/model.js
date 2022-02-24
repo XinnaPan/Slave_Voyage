@@ -33,7 +33,6 @@ export default modelExtend(model, {
           pathToRegexp('/').exec(pathname)
         ) {
           dispatch({ type: 'query' })
-          dispatch({ type: 'queryWeather' })
         }
       })
     },

@@ -25,12 +25,9 @@ class List extends PureComponent {
       })
     }
   }
-
-  
   render() {
     const { onDeleteItem, onEditItem, ...tableProps } = this.props
-
-
+    
 
 
     return (

@@ -82,7 +82,6 @@ export default {
     fs.readFileSync(path.join(__dirname, './src/themes/default.less'), 'utf8')
   ),
   webpack5: {},
-  mfsu: {},
   chainWebpack: function (config, { webpack }) {
     !isDevelopment && config.merge({
       optimization: {

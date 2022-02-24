@@ -23,8 +23,8 @@ class UserModal extends PureComponent {
 
 
   render() {
-    const { item , onOk,treePro, 
-      onExpand,onCheck,onSelect,
+    const { item, onOk, treePro,
+      onExpand, onCheck, onSelect,
       ...modalProps } = this.props
 
     
@@ -37,9 +37,9 @@ class UserModal extends PureComponent {
           expandedKeys={treePro.expandedKeys}
           autoExpandParent={treePro.autoExpandParent}
           onCheck={onCheck}
-          checkedKeys={treePro.checkedKeys}
+          checkedKeys={treePro.checkedTitlesTmp}
           onSelect={onSelect}
-          selectedKeys={treePro.selectedKeys}
+          selectedKeys={treePro.selectedTitlesTmp}
           treeData={item}
         />
       </Modal>

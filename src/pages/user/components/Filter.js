@@ -4,8 +4,10 @@ import moment from 'moment'
 import { FilterItem } from 'components'
 import { Trans } from "@lingui/macro"
 import { t } from "@lingui/macro"
-import { Button, Row, Col, DatePicker, Form, Input, Cascader } from 'antd'
-//import city from 'utils/city'
+import { Button, Row, Col, DatePicker, Form, Input, Cascader, Tag } from 'antd'
+import { SettingOutlined } from '@ant-design/icons';
+import { TweenOneGroup } from "rc-tween-one";
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
 const { Search } = Input
 const { RangePicker } = DatePicker
@@ -25,25 +27,6 @@ const TwoColProps = {
 
 class Filter extends Component {
   formRef = React.createRef()
-
-  handleFields = fields => {
-    const { createTime } = fields
-    if (createTime && createTime.length) {
-      fields.createTime = [
-        moment(createTime[0]).format('YYYY-MM-DD'),
-        moment(createTime[1]).format('YYYY-MM-DD'),
-      ]
-    }
-    return fields
-  }
-
-  handleSubmit = () => {
-    const { onFilterChange } = this.props
-    const values = this.formRef.current.getFieldsValue()
-    const fields = this.handleFields(values)
-    onFilterChange(fields)
-  }
-
   handleReset = () => {
     const fields = this.formRef.current.getFieldsValue()
     for (let item in fields) {
@@ -56,68 +39,115 @@ class Filter extends Component {
       }
     }
     this.formRef.current.setFieldsValue(fields)
-    this.handleSubmit()
-  }
-  handleChange = (key, values) => {
-    const { onFilterChange } = this.props
-    let fields = this.formRef.current.getFieldsValue()
-    fields[key] = values
-    fields = this.handleFields(fields)
-    onFilterChange(fields)
+    
   }
 
+  
   render() {
-    const { onAdd, filter } = this.props
-    const { name, address } = filter
-
-    let initialCreateTime = []
-    if (filter.createTime && filter.createTime[0]) {
-      initialCreateTime[0] = moment(filter.createTime[0])
+    const { onAdd, treeData, tagSearchTerm, handleSubmit, handleClose, handleClick } = this.props
+    
+    const submitAndClean=(e)=>{
+      handleSubmit(e);
+      this.handleReset();
     }
-    if (filter.createTime && filter.createTime[1]) {
-      initialCreateTime[1] = moment(filter.createTime[1])
-    }
+  
+    
+    const forMap = (tag) => {
+      const tagElem = (
+        <Tag
+          closable
+          onClose={(e) => {
+            e.preventDefault();
+            handleClose(tag);
+          }}
+        >
+          {tag}
+        </Tag>
+      );
+      return (
+        <span key={tag} style={{ display: "inline-block" }}>
+          {tagElem}
+        </span>
+      );
+    };
 
+    const tagChild = tagSearchTerm.map(forMap);
     return (
-      <Form ref={this.formRef} name="control-ref" initialValues={{ name, address, createTime: initialCreateTime }}>
-        <Row gutter={24}>
-          <Col {...ColProps} xl={{ span: 4 }} md={{ span: 8 }}>
-            <Form.Item name="name">
-              <Search
-                placeholder={t`Search Name`}
-                onSearch={this.handleSubmit}
-              />
-            </Form.Item>
-          </Col>
-          <Col
-            {...ColProps}
-            xl={{ span: 4 }}
-            md={{ span: 8 }}
-            id="addressCascader"
-          >
-            <Form.Item name="address">
-              <Cascader
-                style={{ width: '100%' }}
-                //options={city}
-                placeholder={t`Please pick an address`}
-              />
-            </Form.Item>
-          </Col>
-          <Col
-            {...ColProps}
-            xl={{ span: 6 }}
-            md={{ span: 8 }}
-            sm={{ span: 12 }}
-            id="createTimeRangePicker"
-          >
-            <FilterItem label={t`CreateTime`}>
-              <Form.Item name="createTime">
-                <RangePicker
+      <Form ref={this.formRef} name="control-ref" onFinish={submitAndClean}>
+
+          <Row gutter={24}>
+            <Col {...ColProps}>
+              <TweenOneGroup
+                enter={{
+                  scale: 0.8,
+                  opacity: 0,
+                  type: "from",
+                  duration: 100
+                }}
+                onEnd={(e) => {
+                  if (e.type === "appear" || e.type === "enter") {
+                    e.target.style = "display: inline-block";
+                  }
+                }}
+                leave={{ opacity: 0, width: 0, scale: 0, duration: 200 }}
+                appear={false}
+              >
+                {tagChild}
+              </TweenOneGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col style={{ marginRight: 10, marginTop: 4, }}>
+              <label>add search term   </label>
+            </Col>
+            <Col
+              {...ColProps}
+              xl={{ span: 6 }}
+              md={{ span: 12 }}
+              id="addressCascader"
+            >
+              <Form.Item name="fields" >
+                <Cascader
                   style={{ width: '100%' }}
+                  options={treeData}
+                  placeholder={t`Please choose the field`}
                 />
               </Form.Item>
-            </FilterItem>
+            </Col>
+            <Col style={{ marginBottom: 16, marginTop: 4 }}>
+              <label> = </label>
+            </Col>
+            <Col {...ColProps} xl={{ span: 4 }} md={{ span: 8 }}>
+              <Form.Item name="val" >
+                <Input
+                  placeholder={t`Add value`}
+                />
+              </Form.Item>
+            </Col>
+
+            <Row gutter={24}>
+            <Col>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" icon={<PlusOutlined />} ></Button>
+              </Form.Item>
+            </Col>
+
+          <Col style={{ marginBottom: 16}}>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" icon={<SearchOutlined />} onClick={handleClick}></Button>
+            </Form.Item>
           </Col>
+          <Col style={{ marginBottom: 16 }}>
+            <Button type="primary" onClick={this.handleReset}>
+              <Trans>Reset</Trans>
+            </Button>
+          </Col>
+          </Row>
+
+          </Row>
+         
+        <Row>
+         
           <Col
             {...TwoColProps}
             xl={{ span: 10 }}
@@ -125,21 +155,10 @@ class Filter extends Component {
             sm={{ span: 24 }}
           >
             <Row type="flex" align="middle" justify="space-between">
-              <div>
-                <Button
-                  type="primary" htmlType="submit"
-                  className="margin-right"
-                  onClick={this.handleSubmit}
-                >
-                  <Trans>Search</Trans>
-                </Button>
-                <Button onClick={this.handleReset}>
-                  <Trans>Reset</Trans>
-                </Button>
-              </div>
               <Button type="ghost" onClick={onAdd}>
-                <Trans>Create</Trans>
+                <Trans>Add Title</Trans>
               </Button>
+             
             </Row>
           </Col>
         </Row>

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { history } from 'umi'
 import { connect } from 'umi'
-import { Row, Col, Button, Popconfirm } from 'antd'
+import { Row, Col, Button, Popconfirm, Icon } from 'antd'
 import { t } from "@lingui/macro"
 import { Page } from 'components'
 import { stringify } from 'qs'
@@ -18,6 +18,7 @@ class User extends PureComponent {
     const { location } = this.props
     const { query, pathname } = location
 
+    console.log("query=",query)
     history.push({
       pathname,
       search: stringify(
@@ -67,7 +68,6 @@ class User extends PureComponent {
   }
 
   getValue = (e, titles_split,cur_ind, res )=>{
-
       var obj=e
       while(cur_ind < titles_split.length) {
         if(obj === null)
@@ -86,50 +86,28 @@ class User extends PureComponent {
         return res
       } 
 
-
-
       if( res.length>0)
         res.push(';')
+      if(obj !== null)
       res.push(obj.toString())
       return res
-
    
   }
 
 
   get modalProps() {
     const { dispatch, user, loading } = this.props
-    const { titles,currentItem, modalVisible, modalType,
+    const { treeData, modalVisible, modalType,
       expandedKeys,
-      checkedKeys,
-      selectedKeys,
+      checkedTitlesTmp,
+      selectedTitlesTmp,
       autoExpandParent, } = user
 
-    let titlesNames= []
-    Object.keys(titles).map((key) => titlesNames.push(key.split("__")));
-    titlesNames.splice(0,4)
-
-    //console.log("titlesNames =",titlesNames)
-    let arr_parent=new Set()
-    let dic_child={};
-    titlesNames.forEach(t=>{
-      arr_parent.add(`0_${t[0]}`);
-      for(let cnt=1;cnt<t.length;cnt++){
-        if(!dic_child[`${cnt-1}_${t[cnt-1]}`]){
-          dic_child[`${cnt-1}_${t[cnt-1]}`]=new Set()
-        }
-        dic_child[`${cnt-1}_${t[cnt-1]}`].add(`${cnt}_${t[cnt]}`)
-
-      }
-    })
-
-    var visited = new Set()
-    var treeData=this.getName(dic_child,arr_parent,"",visited)
     return {
       treePro:{
         expandedKeys,
-        checkedKeys,
-        selectedKeys,
+        checkedTitlesTmp,
+        selectedTitlesTmp,
         autoExpandParent,
       },
       item:treeData,
@@ -144,7 +122,7 @@ class User extends PureComponent {
       onOk: () => {
         dispatch({
           type: `user/${modalType}`,
-          payload: checkedKeys,
+          payload: checkedTitlesTmp,
         }).then(() => {
           this.handleRefresh()
         })
@@ -188,23 +166,23 @@ class User extends PureComponent {
 
   get listProps() {
     const { dispatch, user, loading } = this.props
-    const { titles,list, pagination, selectedRowKeys,checkedTmpKeys } = user
-    
+    const { titles,list, pagination, selectedRowKeys,checkedTitlesFinal } = user
     //const titlesSelected = [1,2]
-
     let titles_split= {} 
-    checkedTmpKeys.map( key => {
+    checkedTitlesFinal.map( key => {
       titles_split[key]=key.split("__")
     });
     
     var columns=[]
-    checkedTmpKeys.forEach(total_title => {
-      //console.log(total_title)
+    checkedTitlesFinal.forEach((total_title,ind) => {
       if (titles[total_title] !== undefined) {
         columns.push({
-          title: <Trans>{titles[total_title]['label']}</Trans>,
+          title: <Trans>{titles[total_title]['label']}</Trans> ,
           dataIndex: total_title,
-          key: total_title
+          key: total_title,
+          //sorter:{multiple: ind},
+          //sortDirections: ['descend']
+          
         }
         )
       }
@@ -215,72 +193,62 @@ class User extends PureComponent {
       var tmpData={}
       tmpData['id']=e['id']
 
-      checkedTmpKeys.forEach(total_title => {
-        var res=[]
-        tmpData[total_title]=this.getValue(e, titles_split[total_title], 0, res )
+      checkedTitlesFinal.forEach(total_title => {
+        if(titles_split[total_title] !== undefined) {
+          var res=[]
+          tmpData[total_title]=this.getValue(e, titles_split[total_title], 0, res )
+        }
       })
       newList.push(tmpData)
       
       });
     
-    
-        
     return {
       dataSource: newList,
       loading: loading.effects['user/query'],
       pagination,
       //titles:res_titles,
       columns,
-      onChange: page => {
+      onChange: (pagination, _, sorter) => {
         this.handleRefresh({
-          page: page.current,
-          pageSize: page.pageSize,
+          page: pagination.current,
+          pageSize: pagination.pageSize,
         })
-      },
-      onDeleteItem: id => {
-        dispatch({
-          type: 'user/delete',
-          payload: id,
-        }).then(() => {
-          this.handleRefresh({
-            page:
-              list.length === 1 && pagination.current > 1
-                ? pagination.current - 1
-                : pagination.current,
-          })
-        })
-      },
-      onEditItem(item) {
-        dispatch({
-          type: 'user/showModal',
-          payload: {
-            modalType: 'update',
-            currentItem: item,
-          },
-        })
-      },
-      rowSelection: {
-        selectedRowKeys,
-        onChange: keys => {
+
+        console.log('sorter=', sorter)
+        //if(sorter.order != undefined) {
+
+        //}
+        /*var keys = ''
+        if (sorter !== undefined) {
+          if (sorter.length === undefined) {
+            keys += sorter.columnKey
+          } else {
+            sorter.forEach(objs => {
+              if (keys !== '')
+                keys += ','
+              keys += objs.columnKey
+            })
+          }
           dispatch({
-            type: 'user/updateState',
-            payload: {
-              selectedRowKeys: keys,
-            },
+            type: 'user/sort',
+            payload: keys,
           })
-        },
+        }*/
       },
+     
     }
   }
 
   get filterProps() {
-    const { location, dispatch } = this.props
+    const { location, dispatch, user} = this.props
     const { query } = location
-
     return {
       filter: {
         ...query,
       },
+      treeData:user.treeData ,
+      tagSearchTerm:user.tagSearchTerm,
       onFilterChange: value => {
         this.handleRefresh({
           ...value,
@@ -294,32 +262,42 @@ class User extends PureComponent {
           },
         })
       },
+      //for tags added
+      handleSubmit (values) {
+        console.log("val=",values)
+        if(values.fields === undefined || values.val ===undefined)
+          return
+        var last_ind=values.fields.length -1
+        var fie=values.fields[last_ind]
+        dispatch({
+          type: 'user/handleFilter',
+          payload: `${fie}=${values.val}`,
+        })
+      },
+      handleClose(removedTag) {
+        //const tags = this.state.tags.filter((tag) => tag !== removedTag);
+        //console.log(tags);
+        //this.setState({ tags });
+        dispatch({
+          type: 'user/deleteTag',
+          payload: removedTag,
+        })
+      },
+
+      handleClick() {
+        dispatch({
+          type: 'user/filter',
+        })
+      }
     }
   }
 
   render() {
     const { user } = this.props
-    const { selectedRowKeys } = user
-
     return (
       <Page inner>
         <Filter {...this.filterProps} />
-        {selectedRowKeys.length > 0 && (
-          <Row style={{ marginBottom: 24, textAlign: 'right', fontSize: 13 }}>
-            <Col>
-              {`Selected ${selectedRowKeys.length} items `}
-              <Popconfirm
-                title="Are you sure delete these items?"
-                placement="left"
-                onConfirm={this.handleDeleteItems}
-              >
-                <Button type="primary" style={{ marginLeft: 8 }}>
-                  Remove
-                </Button>
-              </Popconfirm>
-            </Col>
-          </Row>
-        )}
+        
         <List {...this.listProps} />
         <Modal {...this.modalProps} />
       </Page>

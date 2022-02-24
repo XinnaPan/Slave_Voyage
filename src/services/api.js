@@ -16,5 +16,7 @@ export default {
   queryDashboard: '/dashboard',
   queryTableTitles: 'OPTIONS /sv/voyage/',
   queryVoyageList: '/sv/voyage/',
+  queryFilter: '/sv/voyage/',
+  querySort:'/sv/voyage/'
 
 }
