@@ -31,6 +31,7 @@ export default modelExtend(pageModel, {
     tagSearchTerm:[],//for filter
     sortTitlesStr:[],
 
+
   },
 
   subscriptions: {
@@ -39,15 +40,16 @@ export default modelExtend(pageModel, {
         if (pathToRegexp('/user').exec(location.pathname)) {
           
           //console.log(location);
-          const payload = {
+          /*const payload = {
             page:Number(location.query.page)||1,
-            pageSize:Number(location.query.pageSize) || 10,     
-          }
+            pageSize:Number(location.query.pageSize) || 10,   
+            order_by:payload.order_by  
+          }*/
           //const payload = location.query || { page: 1, pageSize: 10 }
          
           dispatch({
             type: 'query',
-            payload,
+            payload:location.query,
           })
         }
       })
@@ -57,14 +59,18 @@ export default modelExtend(pageModel, {
   effects: {
     *query({ payload = {} }, { call, put }) {
 
-      const params_data={
-        results_per_page:Number(payload.pageSize),
-        results_page:Number(payload.page),
-        /*order_by: payload.sortTitlesStr,
-        checkedTitlesFinal,
-        tagSearchTerm,
-        sortTitlesStr,*/
+      const {pageSize,page,...extra_info}=payload
+      let params_data={
+        results_per_page:Number(payload.pageSize) ||10,
+        results_page:Number(payload.page)||1,
       }
+      console.log("ei=",extra_info)
+      Object.keys(extra_info).map((ei) => {
+        if(extra_info[ei]===undefined)
+          return
+        params_data[ei]=extra_info[ei]
+      });
+
 
       const data = yield call(queryVoyageList, params_data)
 
@@ -114,9 +120,12 @@ export default modelExtend(pageModel, {
       var treeData= getName(dic_child,arr_parent,"",visited)
 
       if (data && titles) {
-       
+
+
+
+        console.log("treeData=",treeData)
         yield put({
-          type: 'querySuccess',
+          type: 'queryPageSuccess',
           payload: {
             titles: titles,
             treeData:treeData,
@@ -141,7 +150,7 @@ export default modelExtend(pageModel, {
       const data = yield call(queryFilter, params) 
       if(data) {
         yield put({
-          type: 'queryFilterUpdate',
+          type: 'queryFilterSuccess',
           payload: {
             list: data.list,
             pagination: {
@@ -159,7 +168,7 @@ export default modelExtend(pageModel, {
       //const { selectedRowKeys } = yield select(_ => _.user)
       if (data) {
         yield put({
-          type: 'queryFilterUpdate',
+          type: 'queryFilterSuccess',
           payload: {
             list: data.list,
             pagination: {
@@ -254,7 +263,14 @@ export default modelExtend(pageModel, {
       return {...state,tagSearchTerm:tags}
     },
 
+   /* recordTitles(state, {payload}) {
+      return {...state, titles:payload}
+    },
 
+    recordTreeData(state,{payload}) {
+      return {...state, treeData:payload}
+
+    }*/
 
 
   },

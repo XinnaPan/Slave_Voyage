@@ -210,10 +210,30 @@ class User extends PureComponent {
       //titles:res_titles,
       columns,
       onChange: (pagination, _, sorter) => {
-        this.handleRefresh({
+
+        let params = {
           page: pagination.current,
           pageSize: pagination.pageSize,
-        })
+        }
+        if (sorter.column !== undefined) {
+          if (sorter.length === undefined) {
+            params['order_by'] = sorter.columnKey
+          } else {
+            let keys=''
+            sorter.forEach(objs => {
+              if (keys !== '')
+                keys += ','
+              keys += objs.columnKey
+            })
+            params['order_by'] = keys
+          }
+        } else {
+          params['order_by'] = undefined
+        }
+
+        this.handleRefresh(
+          params
+        )
 
         console.log('sorter=', sorter)
         //if(sorter.order != undefined) {
@@ -284,10 +304,15 @@ class User extends PureComponent {
         })
       },
 
-      handleClick() {
-        dispatch({
-          type: 'user/filter',
+      handleClick:()=> {
+        const tags = user.tagSearchTerm
+        var params={}
+        tags.map(items=>{
+          const str_splitted= items.split('=')
+          params[str_splitted[0]]=str_splitted[1]
         })
+        console.log('pp=',params)
+        this.handleRefresh(params)
       }
     }
   }

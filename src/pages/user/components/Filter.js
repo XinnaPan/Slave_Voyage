@@ -170,7 +170,6 @@ class Filter extends Component {
 Filter.propTypes = {
   onAdd: PropTypes.func,
   filter: PropTypes.object,
-  onFilterChange: PropTypes.func,
 }
 
 export default Filter

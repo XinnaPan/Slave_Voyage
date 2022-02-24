@@ -25,11 +25,10 @@ export const pageModel = modelExtend(model, {
     treeData:[],
 
 
-
   },
 
   reducers: {
-    querySuccess(state, { payload }) {
+    queryPageSuccess(state, { payload }) {
       const { list, pagination,titles,treeData} = payload
       return {
         ...state,
@@ -44,17 +43,39 @@ export const pageModel = modelExtend(model, {
       }
     },
 
-    queryFilterUpdate(state, { payload }) {
+    /*queryFilterSuccess(state, { payload }) {
       const { list, pagination } = payload
       return {
         ...state,
         list,
         pagination: {
-          total:pagination.total
+          total: pagination.total
         },
-        
+
       }
-    }
+    },*/
+
+    querySortSuccess(state, { payload }) {
+      const { list } = payload
+      return {
+        ...state,
+        list,
+      }
+    },
+
+    queryFilterSuccess(state, { payload }) {
+      const { list, pagination } = payload
+      return {
+        ...state,
+        list,
+        pagination: {
+          ...state.pagination,
+          ...pagination,
+        }
+      }
+    },
 
   },
+
+
 })
