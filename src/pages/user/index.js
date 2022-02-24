@@ -180,8 +180,8 @@ class User extends PureComponent {
           title: <Trans>{titles[total_title]['label']}</Trans> ,
           dataIndex: total_title,
           key: total_title,
-          //sorter:{multiple: ind},
-          //sortDirections: ['descend']
+          sorter:{multiple: ind},
+          sortDirections: ['descend']
           
         }
         )
