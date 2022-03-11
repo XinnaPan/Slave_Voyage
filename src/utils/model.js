@@ -23,13 +23,15 @@ export const pageModel = modelExtend(model, {
     },
     titles:[],
     treeData:[],
+    key_type:{},
+    key_label:{},
 
 
   },
 
   reducers: {
     queryPageSuccess(state, { payload }) {
-      const { list, pagination,titles,treeData} = payload
+      const { list, pagination,titles,treeData,key_type,key_label,} = payload
       return {
         ...state,
         list,
@@ -39,7 +41,8 @@ export const pageModel = modelExtend(model, {
         },
         titles,
         treeData,
-
+        key_type,
+        key_label,
       }
     },
 

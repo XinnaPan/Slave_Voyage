@@ -39,13 +39,21 @@ class Filter extends Component {
       }
     }
     this.formRef.current.setFieldsValue(fields)
-    
   }
 
   
+
+  
   render() {
-    const { onAdd, treeData, tagSearchTerm, handleSubmit, handleClose, handleClick } = this.props
-    
+    const { onAdd, treeData, 
+      tagSearchTerm, 
+      handleSubmit, 
+      handleClose, 
+      handleClick,
+      onChange,
+      flag,
+      } = this.props
+
     const submitAndClean=(e)=>{
       handleSubmit(e);
       this.handleReset();
@@ -96,9 +104,10 @@ class Filter extends Component {
               </TweenOneGroup>
             </Col>
           </Row>
-          <Row>
-            <Col style={{ marginRight: 10, marginTop: 4, }}>
-              <label>add search term   </label>
+
+          <Row gutter={12}>
+            <Col style={{ marginTop: 4, }}>
+              <label>add search term</label>
             </Col>
             <Col
               {...ColProps}
@@ -110,21 +119,51 @@ class Filter extends Component {
                 <Cascader
                   style={{ width: '100%' }}
                   options={treeData}
+                  onChange={onChange}
                   placeholder={t`Please choose the field`}
                 />
               </Form.Item>
             </Col>
-            <Col style={{ marginBottom: 16, marginTop: 4 }}>
-              <label> = </label>
-            </Col>
-            <Col {...ColProps} xl={{ span: 4 }} md={{ span: 8 }}>
-              <Form.Item name="val" >
-                <Input
-                  placeholder={t`Add value`}
-                />
-              </Form.Item>
-            </Col>
+          
+          {flag > 0 && (
+            <Row gutter={12}>
+              <Col style={{ marginBottom: 16, marginTop: 4 }}>
+                <label>value is</label>
+              </Col>
+              <Col {...ColProps} xl={{ span: 16 }} md={{ span: 24 }}>
+                <Form.Item name="val" >
+                  <Input
+                    placeholder={t`Add value`}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
 
+          {flag < 0 && (
+            <Row gutter={12}>
+              <Col style={{ marginLeft: 4,marginBottom: 16, marginTop: 4 }}>
+                <label>range from</label>
+              </Col>
+              <Col {...ColProps} xl={{ span: 8 }} md={{ span: 16 }}>
+                <Form.Item name="val1" >
+                  <Input
+                    placeholder={t`Add value1`}
+                  />
+                </Form.Item>
+              </Col>
+              <Col style={{ marginBottom: 16, marginTop: 4 }}>
+                <label>to</label>
+              </Col>
+              <Col {...ColProps} xl={{ span: 8 }} md={{ span: 16 }}>
+                <Form.Item name="val2" >
+                  <Input
+                    placeholder={t`Add value2`}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
             <Row gutter={24}>
             <Col>
               <Form.Item>

@@ -31,6 +31,8 @@ export default modelExtend(pageModel, {
     tagSearchTerm:[],//for filter
     sortTitlesStr:[],
 
+    integerRange:0,
+
 
   },
 
@@ -74,11 +76,11 @@ export default modelExtend(pageModel, {
 
       const data = yield call(queryVoyageList, params_data)
 
-      const titles= yield call(queryTableTitles,{hierarchical:'False'})
+      const titles= yield call(queryTableTitles,{auto:'False'})
 
       Object.keys(titles).filter((tag) => tag !== 'header');
 
-      const getName = (dic,curList,route,visited)=>{
+     /* const getName = (dic,curList,route,visited)=>{
         var data=[]
         curList.forEach(c=>{
           var res={}
@@ -117,11 +119,44 @@ export default modelExtend(pageModel, {
         }
       })
       var visited = new Set()
-      var treeData= getName(dic_child,arr_parent,"",visited)
+      var treeData= getName(dic_child,arr_parent,"",visited)*/
+      //titles.splice(0,4)
+      let treeData=[]
+      let key_type={}
+      let key_label={}
+      const set_tree = (cur_title,route)=>{
+        let res={}
+        Object.keys(cur_title).map(item=>{
+            //console.log("item=",item)
+            if(item==='label' && typeof(cur_title[item])==='string'){
+              res['title']=cur_title[item]
+              res['label']=res['title']
+              res['key']= route
+              res['value']= res['key']
+              key_label[route]=res['title']
+            } else if(item ==='type' && typeof(cur_title[item])==='string'){
+              key_type[route]=cur_title[item]
+            } else if(item !=='headers' && item !=='type'){
+              if(!res['children']) {
+                res['children']=[]
+              }
+              res['children'].push(set_tree(cur_title[item],route+'__'+item))
+            } 
+        })
 
+        return res
+      }
+
+      //treeData=set_tree(titles,"")
+     // Object.keys(titles).filter(item=>item!=='success' && item !=='message' && item!=='statusCode')
+      Object.keys(titles).map(item=>{
+        if(item==='success' || item==='message' || item==='statusCode' ||item ==='headers' || item ==='type')
+          return null
+        else treeData.push(set_tree(titles[item],item))
+      })
+
+      console.log(treeData)
       if (data && titles) {
-
-
 
         console.log("treeData=",treeData)
         yield put({
@@ -130,6 +165,8 @@ export default modelExtend(pageModel, {
             titles: titles,
             treeData:treeData,
             list: data.list,
+            key_type:key_type,
+            key_label:key_label,
             pagination: {
               current: Number(payload.page) || 1,
               pageSize: Number(payload.pageSize) || 10,
@@ -262,6 +299,11 @@ export default modelExtend(pageModel, {
       const tags = state.tagSearchTerm.filter((tag) => tag !== payload);
       return {...state,tagSearchTerm:tags}
     },
+
+    changeValueEdit(state,{payload}) {
+      return {...state,integerRange:payload}
+
+    }
 
    /* recordTitles(state, {payload}) {
       return {...state, titles:payload}

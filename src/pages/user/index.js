@@ -17,7 +17,7 @@ class User extends PureComponent {
   handleRefresh = newQuery => {
     const { location } = this.props
     const { query, pathname } = location
-
+  
     console.log("query=",query)
     history.push({
       pathname,
@@ -144,7 +144,6 @@ class User extends PureComponent {
         console.log("check=",checkedNodes)
         var node=[]
         checkedNodes['checkedNodes'].forEach( e =>{
-          if(e['children'] === undefined) 
             node.push(e['key'])
         })
         dispatch({
@@ -175,9 +174,8 @@ class User extends PureComponent {
     
     var columns=[]
     checkedTitlesFinal.forEach((total_title,ind) => {
-      if (titles[total_title] !== undefined) {
         columns.push({
-          title: <Trans>{titles[total_title]['label']}</Trans> ,
+          title: <Trans>{user.key_label[total_title]}</Trans> ,
           dataIndex: total_title,
           key: total_title,
           sorter:{multiple: ind},
@@ -185,7 +183,6 @@ class User extends PureComponent {
           
         }
         )
-      }
     })
 
     let newList=[];
@@ -269,11 +266,8 @@ class User extends PureComponent {
       },
       treeData:user.treeData ,
       tagSearchTerm:user.tagSearchTerm,
-      onFilterChange: value => {
-        this.handleRefresh({
-          ...value,
-        })
-      },
+      flag:user.integerRange,
+
       onAdd() {
         dispatch({
           type: 'user/showModal',
@@ -285,19 +279,30 @@ class User extends PureComponent {
       //for tags added
       handleSubmit (values) {
         console.log("val=",values)
-        if(values.fields === undefined || values.val ===undefined)
+        dispatch({
+          type: 'user/changeValueEdit',
+          payload: 0,
+        })
+        if(values.fields === undefined)
+          return
+
+        let data=""
+        if(user.integerRange ===0 )
+          return
+        if(user.integerRange <0 && values.val1 &&values.val2 ) {
+          data=values.val1+','+values.val2
+        } else if(user.integerRange >0 && values.val){
+          data=values.val
+        }else
           return
         var last_ind=values.fields.length -1
         var fie=values.fields[last_ind]
         dispatch({
           type: 'user/handleFilter',
-          payload: `${fie}=${values.val}`,
+          payload: `${fie}=${data}`,
         })
       },
       handleClose(removedTag) {
-        //const tags = this.state.tags.filter((tag) => tag !== removedTag);
-        //console.log(tags);
-        //this.setState({ tags });
         dispatch({
           type: 'user/deleteTag',
           payload: removedTag,
@@ -313,6 +318,25 @@ class User extends PureComponent {
         })
         console.log('pp=',params)
         this.handleRefresh(params)
+        
+      },
+
+      onChange:(value) =>{
+        console.log('value=',value);
+        let len=value.length-1
+        const name = value[len]
+        console.log('value=',user.key_type);
+
+        if (user.key_type[name] === "<class 'rest_framework.fields.IntegerField'>")
+          dispatch({
+            type: 'user/changeValueEdit',
+            payload: -1,
+          })
+        else dispatch({
+          type: 'user/changeValueEdit',
+          payload: 1,
+        })
+        
       }
     }
   }
