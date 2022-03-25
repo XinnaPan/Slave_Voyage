@@ -337,7 +337,9 @@ class User extends PureComponent {
           payload: 1,
         })
         
-      }
+      },
+
+      //onSliderChange:(value)=>{}
     }
   }
 

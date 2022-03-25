@@ -12,12 +12,15 @@ const gen = params => {
     method = paramsArray[0]
     url = apiPrefix + paramsArray[1]
   }
+
+  var headers = {Authorization:'Token 519772554d0db362ec4e00da0d620be0d20a3a94'}
   if(method === 'GET' || method === 'OPTIONS'){
     return function(data) {
       return request({
         url,
         params:data,
         method,
+        headers
       })
     }
   } else{
@@ -26,6 +29,8 @@ const gen = params => {
         url,
         data,
         method,
+        headers
+
       })
     }
   }

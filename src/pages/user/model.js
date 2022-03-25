@@ -66,7 +66,6 @@ export default modelExtend(pageModel, {
         results_per_page:Number(payload.pageSize) ||10,
         results_page:Number(payload.page)||1,
       }
-      console.log("ei=",extra_info)
       Object.keys(extra_info).map((ei) => {
         if(extra_info[ei]===undefined)
           return
@@ -76,67 +75,32 @@ export default modelExtend(pageModel, {
 
       const data = yield call(queryVoyageList, params_data)
 
-      const titles= yield call(queryTableTitles,{auto:'False'})
+      const titles= yield call(queryTableTitles,{auto:'true'})
+      delete titles['headers']
+      delete titles['success']
+      delete titles['message']
+      delete titles['statusCode']
 
-      Object.keys(titles).filter((tag) => tag !== 'header');
 
-     /* const getName = (dic,curList,route,visited)=>{
-        var data=[]
-        curList.forEach(c=>{
-          var res={}
-          var tmp = c.split('__')
-          var ind= tmp.length -1
 
-          res['title']=tmp[ind]
-          res['label']=res['title']
-          res['key']= c
-          res['value']= res['key']
-          if(dic && dic[c] && !visited.has(c)) {
-            visited.add(c)
-            res['children']=getName(dic,dic[c],res['key'],visited)
-            visited.delete(c)
-          }
-          data.push(res)
-        })
-        return data
-      }
-
-      var titlesNames= []
-      Object.keys(titles).map((key) => titlesNames.push(key.split("__")));
-      titlesNames.splice(0,4)
-      let arr_parent=new Set()
-      let dic_child={};
-      titlesNames.forEach(t=>{
-        arr_parent.add(`${t[0]}`);
-        var name_cur=t[0]
-        for(let cnt=1;cnt<t.length;cnt++){
-          if(!dic_child[name_cur]){
-            dic_child[name_cur]=new Set()
-          }
-          dic_child[name_cur].add(`${name_cur}__${t[cnt]}`)
-          name_cur += '__'
-          name_cur += t[cnt]
-        }
-      })
-      var visited = new Set()
-      var treeData= getName(dic_child,arr_parent,"",visited)*/
-      //titles.splice(0,4)
+  
       let treeData=[]
       let key_type={}
       let key_label={}
       const set_tree = (cur_title,route)=>{
         let res={}
         Object.keys(cur_title).map(item=>{
-            //console.log("item=",item)
-            if(item==='label' && typeof(cur_title[item])==='string'){
+            if(item==='label' ){
               res['title']=cur_title[item]
               res['label']=res['title']
               res['key']= route
               res['value']= res['key']
               key_label[route]=res['title']
-            } else if(item ==='type' && typeof(cur_title[item])==='string'){
+            } else if(item ==='type'){
               key_type[route]=cur_title[item]
-            } else if(item !=='headers' && item !=='type'){
+            } else if(item ==='model'){
+              return false;
+            } else {
               if(!res['children']) {
                 res['children']=[]
               }
@@ -150,9 +114,8 @@ export default modelExtend(pageModel, {
       //treeData=set_tree(titles,"")
      // Object.keys(titles).filter(item=>item!=='success' && item !=='message' && item!=='statusCode')
       Object.keys(titles).map(item=>{
-        if(item==='success' || item==='message' || item==='statusCode' ||item ==='headers' || item ==='type')
-          return null
-        else treeData.push(set_tree(titles[item],item))
+        console.log("t:",item)
+        treeData.push(set_tree(titles[item],item))
       })
 
       console.log(treeData)

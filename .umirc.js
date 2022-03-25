@@ -59,7 +59,7 @@ export default {
 
 
   '/api/v1/sv':{
-      target:' http://152.70.193.224:8000/',
+      target:' https://voyages3-api.crc.rice.edu/',
       changeOrigin: true,
       pathRewrite: { '^/api/v1/sv': '' },
     },

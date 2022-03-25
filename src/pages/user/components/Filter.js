@@ -4,10 +4,10 @@ import moment from 'moment'
 import { FilterItem } from 'components'
 import { Trans } from "@lingui/macro"
 import { t } from "@lingui/macro"
-import { Button, Row, Col, DatePicker, Form, Input, Cascader, Tag } from 'antd'
+import { Button, Row, Col, DatePicker, Form, Input, Cascader, Tag , Space } from 'antd'
 import { SettingOutlined } from '@ant-design/icons';
 import { TweenOneGroup } from "rc-tween-one";
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { MinusOutlined,PlusOutlined, SearchOutlined,MinusCircleOutlined,PlusCircleOutlined } from '@ant-design/icons';
 
 const { Search } = Input
 const { RangePicker } = DatePicker
@@ -55,8 +55,9 @@ class Filter extends Component {
       } = this.props
 
     const submitAndClean=(e)=>{
-      handleSubmit(e);
-      this.handleReset();
+      //handleSubmit(e);
+      //this.handleReset();
+      console.log("here:",e)
     }
   
     
@@ -79,129 +80,63 @@ class Filter extends Component {
       );
     };
 
-    const tagChild = tagSearchTerm.map(forMap);
+    const SearchList = () => {
+      return(
+        <Form.List name="search_term" initialValue={[{}]} >
+          {
+            (fields, { add, remove }) => (
+            <>
+              {fields.map(({ key, name, ...restField },index) => 
+              {
+                return(
+                  <Space key={key} style={{ display: 'flex'}} align="baseline" span={24}>
+                    <Form.Item
+                      {...restField}
+                      name={[name, 'key']}
+                    >
+                      <Input placeholder="Search Field" />
+                    </Form.Item>
+                    <Form.Item
+                      {...restField}
+                      name={[name, 'value']}
+                    >
+                      <Input placeholder="value" />
+                    </Form.Item>
+
+                    <MinusCircleOutlined onClick={() => remove(name)} />
+                    {index === fields.length - 1 && <PlusCircleOutlined onClick={() => add()} />}
+                  </Space>
+                )}
+                )}
+                
+        </>)
+        }
+      </Form.List>)
+    }
+
+
     return (
-      <Form ref={this.formRef} name="control-ref" onFinish={submitAndClean}>
-
-          <Row gutter={24}>
-            <Col {...ColProps}>
-              <TweenOneGroup
-                enter={{
-                  scale: 0.8,
-                  opacity: 0,
-                  type: "from",
-                  duration: 100
-                }}
-                onEnd={(e) => {
-                  if (e.type === "appear" || e.type === "enter") {
-                    e.target.style = "display: inline-block";
-                  }
-                }}
-                leave={{ opacity: 0, width: 0, scale: 0, duration: 200 }}
-                appear={false}
-              >
-                {tagChild}
-              </TweenOneGroup>
-            </Col>
-          </Row>
-
-          <Row gutter={12}>
-            <Col style={{ marginTop: 4, }}>
-              <label>add search term</label>
-            </Col>
-            <Col
-              {...ColProps}
-              xl={{ span: 6 }}
-              md={{ span: 12 }}
-              id="addressCascader"
-            >
-              <Form.Item name="fields" >
-                <Cascader
-                  style={{ width: '100%' }}
-                  options={treeData}
-                  onChange={onChange}
-                  placeholder={t`Please choose the field`}
-                />
-              </Form.Item>
-            </Col>
-          
-          {flag > 0 && (
-            <Row gutter={12}>
-              <Col style={{ marginBottom: 16, marginTop: 4 }}>
-                <label>value is</label>
-              </Col>
-              <Col {...ColProps} xl={{ span: 16 }} md={{ span: 24 }}>
-                <Form.Item name="val" >
-                  <Input
-                    placeholder={t`Add value`}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          )}
-
-          {flag < 0 && (
-            <Row gutter={12}>
-              <Col style={{ marginLeft: 4,marginBottom: 16, marginTop: 4 }}>
-                <label>range from</label>
-              </Col>
-              <Col {...ColProps} xl={{ span: 8 }} md={{ span: 16 }}>
-                <Form.Item name="val1" >
-                  <Input
-                    placeholder={t`Add value1`}
-                  />
-                </Form.Item>
-              </Col>
-              <Col style={{ marginBottom: 16, marginTop: 4 }}>
-                <label>to</label>
-              </Col>
-              <Col {...ColProps} xl={{ span: 8 }} md={{ span: 16 }}>
-                <Form.Item name="val2" >
-                  <Input
-                    placeholder={t`Add value2`}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          )}
-            <Row gutter={24}>
-            <Col>
-              <Form.Item>
-                <Button type="primary" htmlType="submit" icon={<PlusOutlined />} ></Button>
-              </Form.Item>
-            </Col>
-
-          <Col style={{ marginBottom: 16}}>
+      <>
+        <Form ref={this.formRef} name="control-ref" onFinish={submitAndClean}>
+          <Row>
             <Form.Item>
-              <Button type="primary" htmlType="submit" icon={<SearchOutlined />} onClick={handleClick}></Button>
+              Enter keywords and values.
             </Form.Item>
-          </Col>
-          <Col style={{ marginBottom: 16 }}>
-            <Button type="primary" onClick={this.handleReset}>
-              <Trans>Reset</Trans>
-            </Button>
-          </Col>
           </Row>
 
+          <SearchList />
+          <Row>
+            <Col span={24} style={{ marginBottom: 16 }}>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" icon={<SearchOutlined />}></Button>
+              </Form.Item>
+            </Col>
           </Row>
-         
-        <Row>
-         
-          <Col
-            {...TwoColProps}
-            xl={{ span: 10 }}
-            md={{ span: 24 }}
-            sm={{ span: 24 }}
-          >
-            <Row type="flex" align="middle" justify="space-between">
-              <Button type="ghost" onClick={onAdd}>
-                <Trans>Add Title</Trans>
-              </Button>
-             
-            </Row>
-          </Col>
-        </Row>
-      </Form>
+        </Form>
+        <Button type="ghost" onClick={onAdd}>
+          <Trans>Add Title</Trans>
+        </Button>
+      </>
     )
   }
 }

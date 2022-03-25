@@ -10,7 +10,6 @@ window.cancelRequest = new Map()
 export default function request(options) {
   let { data, url } = options
   const cloneData = cloneDeep(data)
-  //console.log(options)
 
   try {
     let domain = ''
