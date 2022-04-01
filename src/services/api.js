@@ -17,6 +17,7 @@ export default {
   queryTableTitles: 'OPTIONS /sv/voyage/',
   queryVoyageList: '/sv/voyage/',
   queryFilter: '/sv/voyage/',
-  querySort:'/sv/voyage/'
+  querySort:'/sv/voyage/',
+  queryIntegerRange:'/sv/voyage/aggregations'
 
 }

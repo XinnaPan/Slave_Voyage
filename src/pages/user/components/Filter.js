@@ -1,13 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import moment from 'moment'
-import { FilterItem } from 'components'
 import { Trans } from "@lingui/macro"
 import { t } from "@lingui/macro"
-import { Button, Row, Col, DatePicker, Form, Input, Cascader, Tag , Space } from 'antd'
-import { SettingOutlined } from '@ant-design/icons';
-import { TweenOneGroup } from "rc-tween-one";
-import { MinusOutlined,PlusOutlined, SearchOutlined,MinusCircleOutlined,PlusCircleOutlined } from '@ant-design/icons';
+import { Slider,Button, Row, Col, DatePicker, Form, Input, Cascader, Tag , Space } from 'antd'
+import {  SearchOutlined,MinusCircleOutlined,PlusCircleOutlined } from '@ant-design/icons';
 
 const { Search } = Input
 const { RangePicker } = DatePicker
@@ -46,17 +42,20 @@ class Filter extends Component {
   
   render() {
     const { onAdd, treeData, 
-      tagSearchTerm, 
       handleSubmit, 
       handleClose, 
-      handleClick,
       onChange,
-      flag,
+      key_type,
+      integer_min,
+      integer_max,
+      slider_flag,
+      filter
       } = this.props
 
     const submitAndClean=(e)=>{
       //handleSubmit(e);
       //this.handleReset();
+      handleSubmit(e);
       console.log("here:",e)
     }
   
@@ -80,31 +79,71 @@ class Filter extends Component {
       );
     };
 
+
+    const ValueInput = (props) =>{
+      const { index ,onChange,filter } =props
+      const handleChange_slider=(value)=>{
+        onChange(value)
+      }
+      if(this.formRef.current){
+        const fields = this.formRef.current.getFieldsValue()
+        if(fields["search_term"][props.index]){
+          const keys=fields["search_term"][props.index]["key"]
+          const name=keys?keys[keys.length -1]:''
+          if(keys && slider_flag[name]){
+           return <Slider  getTooltipPopupContainer={triggerNode => triggerNode.parentNode} style={{ width: 200, marginBottom: '0px' }} 
+            tooltipVisible range={{ draggableTrack: true }} min={integer_min[name]} max={integer_max[name]} 
+            onChange={handleChange_slider}
+            //defaultValue={filter[name]}
+            />
+          } else
+            return <Input
+              //defaultValue={keys?(filter?filter[name]:''):''}
+              style={{ width: 212 }}
+              placeholder="value"
+              onChange={handleChange_slider} />
+        } else
+        return <Input 
+         style={{ width: 212}}  placeholder="value" onChange={handleChange_slider}/>
+      }else
+        return null
+    }
+
     const SearchList = () => {
       return(
-        <Form.List name="search_term" initialValue={[{}]} >
+        <Form.List name="search_term" initialValue={[{}]}>
           {
             (fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField },index) => 
               {
                 return(
-                  <Space key={key} style={{ display: 'flex'}} align="baseline" span={24}>
+                  <Space key={key} align="baseline" style={{ display: 'flex'}}  span={24}>
                     <Form.Item
                       {...restField}
                       name={[name, 'key']}
                     >
-                      <Input placeholder="Search Field" />
+                      {/*<Input placeholder="Search Field" />*/}
+                      <Cascader
+                        style={{ width: 200 }}
+                        options={treeData}
+                        onChange={onChange}
+                        placeholder={t`Please choose the field`}
+                        size={"middle"}
+                        //defaultValue={Object.keys(filter)[name]||''}
+                      />
                     </Form.Item>
                     <Form.Item
                       {...restField}
                       name={[name, 'value']}
                     >
-                      <Input placeholder="value" />
+                      {/*integerflag > 0 && <Input placeholder="value" />*/}
+                      {/*integerflag < 0 && <Slider  getTooltipPopupContainer={triggerNode => triggerNode.parentNode} style={{ width: 200 }} tooltipVisible range={{ draggableTrack: true }} defaultValue={[20, 50]} />*/}
+                      <ValueInput index={index} ></ValueInput>
                     </Form.Item>
 
-                    <MinusCircleOutlined onClick={() => remove(name)} />
-                    {index === fields.length - 1 && <PlusCircleOutlined onClick={() => add()} />}
+                    { fields.length > 1 && <MinusCircleOutlined onClick={() => remove(name)} />}
+                    {index === fields.length - 1 && <PlusCircleOutlined onClick={() => add() } style={{}}/>}
                   </Space>
                 )}
                 )}

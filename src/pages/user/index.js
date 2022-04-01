@@ -17,18 +17,33 @@ class User extends PureComponent {
   handleRefresh = newQuery => {
     const { location } = this.props
     const { query, pathname } = location
-  
+    
+    const reserved_que={page:query.page,pageSize:query.pageSize}
     console.log("query=",query)
-    history.push({
-      pathname,
-      search: stringify(
-        {
-          ...query,
-          ...newQuery,
-        },
-        { arrayFormat: 'repeat' }
-      ),
-    })
+    
+    if(query.page===newQuery.page && query.pageSize===newQuery.pageSize){
+      history.push({
+        pathname,
+        search: stringify(
+          {
+            ...reserved_que,
+            ...newQuery,
+          },
+          { arrayFormat: 'repeat' }
+        ),
+      })
+    } else {
+      history.push({
+        pathname,
+        search: stringify(
+          {
+            ...query,
+            ...newQuery,
+          },
+          { arrayFormat: 'repeat' }
+        ),
+      })
+    }
   }
 
   handleDeleteItems = () => {
@@ -266,8 +281,12 @@ class User extends PureComponent {
       },
       treeData:user.treeData ,
       tagSearchTerm:user.tagSearchTerm,
-      flag:user.integerRange,
-
+      integerflag:user.integerRange,
+      key_type:user.key_type,
+      integer_min:user.tmp_integer_min,
+      integer_max:user.tmp_integer_max,
+      slider_flag:user.slider_flag,
+      
       onAdd() {
         dispatch({
           type: 'user/showModal',
@@ -276,66 +295,38 @@ class User extends PureComponent {
           },
         })
       },
-      //for tags added
-      handleSubmit (values) {
-        console.log("val=",values)
-        dispatch({
-          type: 'user/changeValueEdit',
-          payload: 0,
-        })
-        if(values.fields === undefined)
-          return
-
-        let data=""
-        if(user.integerRange ===0 )
-          return
-        if(user.integerRange <0 && values.val1 &&values.val2 ) {
-          data=values.val1+','+values.val2
-        } else if(user.integerRange >0 && values.val){
-          data=values.val
-        }else
-          return
-        var last_ind=values.fields.length -1
-        var fie=values.fields[last_ind]
-        dispatch({
-          type: 'user/handleFilter',
-          payload: `${fie}=${data}`,
-        })
-      },
-      handleClose(removedTag) {
-        dispatch({
-          type: 'user/deleteTag',
-          payload: removedTag,
-        })
-      },
-
-      handleClick:()=> {
-        const tags = user.tagSearchTerm
+     
+      handleSubmit:(values)=> {
         var params={}
-        tags.map(items=>{
-          const str_splitted= items.split('=')
-          params[str_splitted[0]]=str_splitted[1]
+        values.search_term.forEach(items=>{
+          if( items.key && items.value) {
+            if(items.value.size === 1)  params[items.key[items.key.length -1 ]] = items.value
+            else params[items.key[items.key.length -1 ]]=`${items.value[0]},${items.value[1]}`
+          }
         })
-        console.log('pp=',params)
+        //console.log(values.search_term)
         this.handleRefresh(params)
         
       },
 
       onChange:(value) =>{
-        console.log('value=',value);
         let len=value.length-1
         const name = value[len]
-        console.log('value=',user.key_type);
-
-        if (user.key_type[name] === "<class 'rest_framework.fields.IntegerField'>")
+        console.log('name', user.key_type[name])
+        if (user.key_type[name] === "<class 'rest_framework.fields.IntegerField'>") {
           dispatch({
-            type: 'user/changeValueEdit',
-            payload: -1,
+            type: 'user/rangeCheck',
+            payload: name,
           })
-        else dispatch({
-          type: 'user/changeValueEdit',
-          payload: 1,
-        })
+        } else {
+          var temp={}
+          temp[user.key_type[name]]=false;
+          const flags={...user.slider_flag,...temp}
+          dispatch({
+            type: 'user/changeSliderFlag',
+            payload: flags,
+          })
+        }
         
       },
 

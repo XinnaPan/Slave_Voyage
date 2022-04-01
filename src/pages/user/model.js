@@ -2,6 +2,7 @@ import modelExtend from 'dva-model-extend'
 const { pathToRegexp } = require("path-to-regexp")
 import api from 'api'
 import { pageModel } from 'utils/model'
+import { update } from 'lodash'
 
 const {
   queryTableTitles,
@@ -11,7 +12,8 @@ const {
   updateUser,
   removeUserList,
   queryFilter,
-  querySort
+  querySort,
+  queryIntegerRange,
 } = api
 
 export default modelExtend(pageModel, {
@@ -31,8 +33,10 @@ export default modelExtend(pageModel, {
     tagSearchTerm:[],//for filter
     sortTitlesStr:[],
 
-    integerRange:0,
+    tmp_integer_min:{},
+    tmp_integer_max:{},
 
+    slider_flag:{}
 
   },
 
@@ -75,14 +79,11 @@ export default modelExtend(pageModel, {
 
       const data = yield call(queryVoyageList, params_data)
 
-      const titles= yield call(queryTableTitles,{auto:'true'})
+      const titles= yield call(queryTableTitles,{hierarchical:'true'})
       delete titles['headers']
       delete titles['success']
       delete titles['message']
       delete titles['statusCode']
-
-
-
   
       let treeData=[]
       let key_type={}
@@ -111,10 +112,7 @@ export default modelExtend(pageModel, {
         return res
       }
 
-      //treeData=set_tree(titles,"")
-     // Object.keys(titles).filter(item=>item!=='success' && item !=='message' && item!=='statusCode')
       Object.keys(titles).map(item=>{
-        console.log("t:",item)
         treeData.push(set_tree(titles[item],item))
       })
 
@@ -194,17 +192,6 @@ export default modelExtend(pageModel, {
 
 
 
-    *update({ payload }, { select, call, put }) {
-      const id = yield select(({ user }) => user.currentItem.id)
-      const newUser = { ...payload, id }
-      const data = yield call(updateUser, newUser)
-      if (data.success) {
-        yield put({ type: 'hideModal' })
-      } else {
-        throw data
-      }
-    },
-
     *delete({ payload }, { call, put, select }) {
       const data = yield call(removeUser, { id: payload })
       const { selectedRowKeys } = yield select(_ => _.user)
@@ -220,14 +207,34 @@ export default modelExtend(pageModel, {
       }
     },
 
-    *multiDelete({ payload }, { call, put }) {
-      const data = yield call(removeUserList, payload)
+    *rangeCheck({payload},{call,put,select}) {
+      const data = yield call(queryIntegerRange, {aggregate_fields:payload})
+      const mins = yield select(_ => _.user.tmp_integer_min)
+      const maxs = yield select(_ => _.user.tmp_integer_max)
+      const flags = yield select(_ => _.user.slider_flag)
+
+      var temp={};
+      temp[payload]=data[payload]['min']
+      const mins_new = {...mins,...temp}
+      temp[payload]=data[payload]['max']
+      console.log("mins_new",mins_new)
+
+      const maxs_new = {...maxs,...temp}
+      
       if (data.success) {
-        yield put({ type: 'updateState', payload: { selectedRowKeys: [] } })
+        yield put({ type: 'updateRange', payload: {min:mins_new,max:maxs_new} })
       } else {
         throw data
       }
-    },
+      temp[payload]=true
+
+      yield put({
+        type: 'changeSliderFlag',
+        payload:{...flags,...temp}
+      })
+
+
+    }
   },
 
   reducers: {
@@ -266,7 +273,7 @@ export default modelExtend(pageModel, {
     changeValueEdit(state,{payload}) {
       return {...state,integerRange:payload}
 
-    }
+    },
 
    /* recordTitles(state, {payload}) {
       return {...state, titles:payload}
@@ -276,6 +283,16 @@ export default modelExtend(pageModel, {
       return {...state, treeData:payload}
 
     }*/
+
+     updateRange(state,{payload}){
+
+      return {...state,tmp_integer_min:payload.min,tmp_integer_max:payload.max}
+
+    },
+
+    changeSliderFlag(state,{payload}){
+      return {...state,slider_flag:payload}
+    }
 
 
   },
