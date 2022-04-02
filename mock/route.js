@@ -43,6 +43,21 @@ const database = [
     route: '/user/:id',
   },
 
+  {
+    id: '3',
+    breadcrumbParentId: '1',
+    name: 'Config',
+    zh: {
+      name: '配置'
+    },
+    'pt-br': {
+      name: ' '
+    },
+    icon:'edit',
+
+    route: '/post',
+  },
+
   
 
   

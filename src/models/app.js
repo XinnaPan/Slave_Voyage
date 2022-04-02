@@ -93,6 +93,8 @@ export default {
         const { permissions } = user
         let routeList = list
 
+        console.log('list',list)
+
         if (
           permissions.role === ROLE_TYPE.ADMIN ||
           permissions.role === ROLE_TYPE.DEVELOPER
