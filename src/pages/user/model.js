@@ -121,7 +121,7 @@ export default modelExtend(pageModel, {
 
         console.log("treeData=",treeData)
         yield put({
-          type: 'queryPageSuccess',
+          type: 'updateState',
           payload: {
             titles: titles,
             treeData:treeData,
