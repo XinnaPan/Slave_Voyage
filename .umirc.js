@@ -16,7 +16,7 @@ export default {
     utils: resolve(__dirname, './src/utils'),
   },
   antd: {},
-  
+  mfsu: {},
   // a lower cost way to genereate sourcemap, default is cheap-module-source-map, could save 60% time in dev hotload
   devtool: 'eval',
   dva: { immer: true },

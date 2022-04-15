@@ -47,10 +47,4 @@ class UserModal extends PureComponent {
   }
 }
 
-UserModal.propTypes = {
-  type: PropTypes.string,
-  item: PropTypes.object,
-  onOk: PropTypes.func,
-}
-
 export default UserModal

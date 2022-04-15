@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Trans } from "@lingui/macro"
 import { t } from "@lingui/macro"
-import { Slider,Button, Row, Col, DatePicker, Form, Input, Cascader, Tag , Space } from 'antd'
+import { Slider,Button, Row, Col, DatePicker, Form, Input, Cascader, Tag , Space, AutoComplete } from 'antd'
 import {  SearchOutlined,MinusCircleOutlined,PlusCircleOutlined } from '@ant-design/icons';
-
+import  debounce from 'lodash.debounce';
 const { Search } = Input
 const { RangePicker } = DatePicker
 
@@ -21,6 +21,7 @@ const TwoColProps = {
   xl: 96,
 }
 
+
 class Filter extends Component {
   formRef = React.createRef()
   handleReset = () => {
@@ -36,79 +37,63 @@ class Filter extends Component {
     }
     this.formRef.current.setFieldsValue(fields)
   }
-
+  ValueInput = (props) =>{
+    const { index ,
+      AutoComplete_options,
+      integer_min,
+      integer_max,
+      slider_flag,
+      AutoComplete_onsearch,
+      fields} =props
+      if(fields["search_term"][index]){
+        const keys=fields["search_term"][index]["key"]
+        const name=keys?keys[keys.length -1]:''
+        if(keys && slider_flag[name]){
+         return <Slider  getTooltipPopupContainer={triggerNode => triggerNode.parentNode} style={{ width: 200, marginBottom: '0px' }} 
+          tooltipVisible range={{ draggableTrack: true }} min={integer_min[name]} max={integer_max[name]} 
+          />
+        } else {
+          return <AutoComplete
+            //options={AutoComplete_options}
+            style={{
+              width: 200,
+            }}
+            placeholder="input here"
+            onChange ={(value)=>{
+              const searchDebounce = debounce((value,name)=>AutoComplete_onsearch(value,name),500)
+              searchDebounce(value,name)
+            }}
+          >
+            {AutoComplete_options.map(item=>{
+              return (<AutoComplete.Option value={item} key={item}>{item}</AutoComplete.Option>)}) }
+            </AutoComplete>} 
+      } else return <Input style={{ width: 212}}  placeholder="value" />
+  }
   
 
   
   render() {
     const { onAdd, treeData, 
       handleSubmit, 
-      handleClose, 
+      handleClose,
+      key_type, 
       onChange,
-      key_type,
       integer_min,
       integer_max,
       slider_flag,
-      filter
+      AutoComplete_options,
+      AutoComplete_onsearch
       } = this.props
 
     const submitAndClean=(e)=>{
       //handleSubmit(e);
       //this.handleReset();
+
       handleSubmit(e);
-      console.log("here:",e)
     }
-  
+    const searchDebounce = debounce(()=>AutoComplete_onsearch,500)
+
     
-    const forMap = (tag) => {
-      const tagElem = (
-        <Tag
-          closable
-          onClose={(e) => {
-            e.preventDefault();
-            handleClose(tag);
-          }}
-        >
-          {tag}
-        </Tag>
-      );
-      return (
-        <span key={tag} style={{ display: "inline-block" }}>
-          {tagElem}
-        </span>
-      );
-    };
-
-
-    const ValueInput = (props) =>{
-      const { index ,onChange,filter } =props
-      const handleChange_slider=(value)=>{
-        onChange(value)
-      }
-      if(this.formRef.current){
-        const fields = this.formRef.current.getFieldsValue()
-        if(fields["search_term"][props.index]){
-          const keys=fields["search_term"][props.index]["key"]
-          const name=keys?keys[keys.length -1]:''
-          if(keys && slider_flag[name]){
-           return <Slider  getTooltipPopupContainer={triggerNode => triggerNode.parentNode} style={{ width: 200, marginBottom: '0px' }} 
-            tooltipVisible range={{ draggableTrack: true }} min={integer_min[name]} max={integer_max[name]} 
-            onChange={handleChange_slider}
-            //defaultValue={filter[name]}
-            />
-          } else
-            return <Input
-              //defaultValue={keys?(filter?filter[name]:''):''}
-              style={{ width: 212 }}
-              placeholder="value"
-              onChange={handleChange_slider} />
-        } else
-        return <Input 
-         style={{ width: 212}}  placeholder="value" onChange={handleChange_slider}/>
-      }else
-        return null
-    }
-
     const SearchList = () => {
       return(
         <Form.List name="search_term" initialValue={[{}]}>
@@ -139,7 +124,16 @@ class Filter extends Component {
                     >
                       {/*integerflag > 0 && <Input placeholder="value" />*/}
                       {/*integerflag < 0 && <Slider  getTooltipPopupContainer={triggerNode => triggerNode.parentNode} style={{ width: 200 }} tooltipVisible range={{ draggableTrack: true }} defaultValue={[20, 50]} />*/}
-                      <ValueInput index={index} ></ValueInput>
+                      {
+                        this.formRef.current?this.ValueInput({index,key_type,
+                        AutoComplete_options,
+                        integer_min,
+                        integer_max,
+                        slider_flag,
+                        AutoComplete_onsearch,
+                        fields: this.formRef.current.getFieldsValue()})
+                        :<span />
+                      }
                     </Form.Item>
 
                     { fields.length > 1 && <MinusCircleOutlined onClick={() => remove(name)} />}
@@ -180,9 +174,5 @@ class Filter extends Component {
   }
 }
 
-Filter.propTypes = {
-  onAdd: PropTypes.func,
-  filter: PropTypes.object,
-}
 
 export default Filter

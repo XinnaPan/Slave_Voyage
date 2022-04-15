@@ -60,7 +60,6 @@ export default function request(options) {
       }
 
       result.headers=headers
-
       
       return Promise.resolve({
         success: true,

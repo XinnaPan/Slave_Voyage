@@ -13,7 +13,6 @@ export const model = {
 
 export const pageModel = modelExtend(model, {
   state: {
-    list: [],
     pagination: {
       showSizeChanger: true,
       showQuickJumper: true,
@@ -21,11 +20,8 @@ export const pageModel = modelExtend(model, {
       total: 0,
       pageSize: 10,
     },
-    titles:[],
-    treeData:[],
-    key_type:{},
-    key_label:{},
 
+    checkedTitles_shared: ['id', 'dataset', 'last_update'], //shred between cpnfig and user
 
   },
 
@@ -54,21 +50,7 @@ export const pageModel = modelExtend(model, {
       }
     },*/
 
-    querySortSuccess(state, { payload }) {
-      const { list } = payload
-      return {
-        ...state,
-        list,
-      }
-    },
-
-    queryFilterSuccess(state, { payload }) {
-      const { list } = payload
-      return {
-        ...state,
-        list,
-      }
-    },
+   
 
   },
 

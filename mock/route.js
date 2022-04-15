@@ -55,7 +55,7 @@ const database = [
     },
     icon:'edit',
 
-    route: '/post',
+    route: '/config',
   },
 
   

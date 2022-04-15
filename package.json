@@ -15,6 +15,7 @@
     "draftjs-to-markdown": "^0.6.0",
     "dva-model-extend": "^0.1.2",
     "enquire-js": "^0.2.1",
+    "form-data": "^4.0.0",
     "json-format": "^1.0.1",
     "lodash": "^4.17.11",
     "md5": "^2.2.1",
@@ -60,7 +61,7 @@
     "stylelint-config-prettier": "^8.0.0",
     "stylelint-config-standard": "^21.0.0",
     "typescript": "^4.2.3",
-    "umi": "^3.4.0"
+    "umi": "^3.5.0"
   },
   "engines": {
     "node": ">= 10.0.0"

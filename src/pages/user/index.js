@@ -12,27 +12,13 @@ import Modal from './components/Modal'
 import { Trans } from "@lingui/macro"
 
 
-@connect(({ user, loading }) => ({ user, loading }))
+@connect(({ user, loading,titles }) => ({ user, loading,titles }))
 class User extends PureComponent {
   handleRefresh = newQuery => {
     const { location } = this.props
     const { query, pathname } = location
     
-    const reserved_que={page:query.page,pageSize:query.pageSize}
     console.log("query=",query)
-    
-    if(query.page===newQuery.page && query.pageSize===newQuery.pageSize){
-      history.push({
-        pathname,
-        search: stringify(
-          {
-            ...reserved_que,
-            ...newQuery,
-          },
-          { arrayFormat: 'repeat' }
-        ),
-      })
-    } else {
       history.push({
         pathname,
         search: stringify(
@@ -43,7 +29,6 @@ class User extends PureComponent {
           { arrayFormat: 'repeat' }
         ),
       })
-    }
   }
 
   handleDeleteItems = () => {
@@ -65,27 +50,10 @@ class User extends PureComponent {
     })
   }
 
-  getName=(dic,curList,route,visited)=>{
-    let data=[]
-    curList.forEach(c=>{
-      let res={}
-      var title_start_pos = c.indexOf('_')
-      res['title']=c.slice(title_start_pos+1)
-      res['key']=route+(route!==''?'__':'')+res['title']
-      if(dic && dic[c] && !visited.has(c)) {
-        visited.add(c)
-        res['children']=this.getName(dic,dic[c],res['key'],visited)
-        visited.delete(c)
-      }
-      data.push(res)
-    })
-    return data
-  }
-
   getValue = (e, titles_split,cur_ind, res )=>{
       var obj=e
       while(cur_ind < titles_split.length) {
-        if(obj === null)
+        if(!obj)
           break
         if(Array.isArray(obj)){
           break;
@@ -111,8 +79,8 @@ class User extends PureComponent {
 
 
   get modalProps() {
-    const { dispatch, user, loading } = this.props
-    const { treeData, modalVisible, modalType,
+    const { dispatch, user, loading ,titles} = this.props
+    const {modalVisible, modalType,
       expandedKeys,
       checkedTitlesTmp,
       selectedTitlesTmp,
@@ -125,7 +93,7 @@ class User extends PureComponent {
         selectedTitlesTmp,
         autoExpandParent,
       },
-      item:treeData,
+      item:titles.checked_titles_global,
       visible: modalVisible,
       destroyOnClose: true,
       maskClosable: false,
@@ -179,18 +147,17 @@ class User extends PureComponent {
   }
 
   get listProps() {
-    const { dispatch, user, loading } = this.props
-    const { titles,list, pagination, selectedRowKeys,checkedTitlesFinal } = user
+    const {  user, loading,titles } = this.props
+    const { list, pagination, checkedTitlesFinal } = user
     //const titlesSelected = [1,2]
     let titles_split= {} 
     checkedTitlesFinal.map( key => {
       titles_split[key]=key.split("__")
     });
-    
     var columns=[]
     checkedTitlesFinal.forEach((total_title,ind) => {
         columns.push({
-          title: <Trans>{user.key_label[total_title]}</Trans> ,
+          title: <Trans>{titles.key_label[total_title]}</Trans> ,
           dataIndex: total_title,
           key: total_title,
           sorter:{multiple: ind},
@@ -206,7 +173,7 @@ class User extends PureComponent {
       tmpData['id']=e['id']
 
       checkedTitlesFinal.forEach(total_title => {
-        if(titles_split[total_title] !== undefined) {
+        if(titles_split[total_title]) {
           var res=[]
           tmpData[total_title]=this.getValue(e, titles_split[total_title], 0, res )
         }
@@ -273,16 +240,18 @@ class User extends PureComponent {
   }
 
   get filterProps() {
-    const { location, dispatch, user} = this.props
+    const { location, dispatch, user,titles} = this.props
     const { query } = location
+
     return {
       filter: {
         ...query,
       },
-      treeData:user.treeData ,
+      AutoComplete_options:user.autoComplete_options,
+      treeData:titles.checked_titles_global ,
       tagSearchTerm:user.tagSearchTerm,
       integerflag:user.integerRange,
-      key_type:user.key_type,
+      key_type:titles.key_type,
       integer_min:user.tmp_integer_min,
       integer_max:user.tmp_integer_max,
       slider_flag:user.slider_flag,
@@ -295,32 +264,61 @@ class User extends PureComponent {
           },
         })
       },
+      AutoComplete_onsearch: (value, title) => {
+        var params = new FormData();
+        params.append(title,value)
+        console.log('autodata:',title, value)
+        dispatch({
+          type: 'user/autoComplete',
+          payload: {
+            params:params,
+            title:title
+          },
+        })
+        /*dispatch({
+          type: 'updateAutoCompleteOptions',
+           payload:[{value:'nana1'},{value:'nana2'}]
+          })*/
+        
+
+      },
      
       handleSubmit:(values)=> {
-        var params={}
+        //var params = {}
+        console.log('values',values.search_term)
+        var params = new FormData();
         values.search_term.forEach(items=>{
           if( items.key && items.value) {
-            if(items.value.size === 1)  params[items.key[items.key.length -1 ]] = items.value
-            else params[items.key[items.key.length -1 ]]=`${items.value[0]},${items.value[1]}`
+            params.append(items.key.length >1?items.key[items.key.length-1]:items.key,items.value.length>1?items.value.join(','):items.value)
+            //params.append('id','200,300')
           }
         })
-        //console.log(values.search_term)
-        this.handleRefresh(params)
+        
+        //params.append('id','200,300')
+        //params["id"]=[200,300];
+        dispatch({
+          type: 'user/filter',
+          payload: {
+            params:params
+          },
+        })
+        //this.handleRefresh(params)
         
       },
 
       onChange:(value) =>{
+        const {key_type} = titles
         let len=value.length-1
         const name = value[len]
-        console.log('name', user.key_type[name])
-        if (user.key_type[name] === "<class 'rest_framework.fields.IntegerField'>") {
+        console.log('name', key_type[name])
+        if (key_type[name] === "<class 'rest_framework.fields.IntegerField'>") {
           dispatch({
             type: 'user/rangeCheck',
             payload: name,
           })
         } else {
           var temp={}
-          temp[user.key_type[name]]=false;
+          temp[key_type[name]]=false;
           const flags={...user.slider_flag,...temp}
           dispatch({
             type: 'user/changeSliderFlag',
@@ -335,23 +333,14 @@ class User extends PureComponent {
   }
 
   render() {
-    const { user } = this.props
     return (
       <Page inner>
         <Filter {...this.filterProps} />
-        
         <List {...this.listProps} />
         <Modal {...this.modalProps} />
       </Page>
     )
   }
-}
-
-User.propTypes = {
-  user: PropTypes.object,
-  location: PropTypes.object,
-  dispatch: PropTypes.func,
-  loading: PropTypes.object,
 }
 
 export default User

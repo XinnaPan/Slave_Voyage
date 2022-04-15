@@ -46,6 +46,7 @@ export default {
         date: new Date(Date.now() - 50000000),
       },
     ],
+    
   },
   subscriptions: {
     setup({ dispatch }) {

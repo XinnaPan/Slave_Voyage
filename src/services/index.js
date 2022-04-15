@@ -13,7 +13,7 @@ const gen = params => {
     url = apiPrefix + paramsArray[1]
   }
 
-  var headers = {Authorization:'Token 519772554d0db362ec4e00da0d620be0d20a3a94'}
+  var headers = {Authorization:'Token 519772554d0db362ec4e00da0d620be0d20a3a94', "Content-Type": "multipart/form-data"}
   if(method === 'GET' || method === 'OPTIONS'){
     return function(data) {
       return request({
@@ -29,8 +29,7 @@ const gen = params => {
         url,
         data,
         method,
-        headers
-
+        headers,
       })
     }
   }
