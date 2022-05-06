@@ -165,6 +165,42 @@
 
 - [ ] Show all titles and let user select some. Only those selected will show in the Modal of the user page;
 
+###### Globalization
+
+- [x] Add language selection;
+
+- [ ] Do translation for text;
+
+  I can provide an idea to implement this. 
+
+  ```bash
+  npm run add-locale ** // '**' is the Language Code, like ja, ko...
+  
+  #add<Trans></Trans> to the text you want to translate. 
+  <Trans>Message</Trans> 
+  
+  npm run extract
+  
+  #add the relevant configuration in src/utils/config.js.
+  {
+      ...
+      i18n: {
+          languages: [
+              ...
+              {
+                  key:'ja',
+                  title: '日本語',
+                  flag: '/japanese.svg',
+              },
+          ],
+      },
+  }
+  
+  npm run trans:only
+  ```
+
+  You can find the configuration under  src/locales/** /**.json and do some adjustments here.
+
 
 
 ### Mock	
