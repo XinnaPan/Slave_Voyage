@@ -11,7 +11,6 @@ export default function request(options) {
   let { data, url } = options
   const cloneData = cloneDeep(data)
 
-
   try {
     let domain = ''
     const urlMatch = url.match(/[a-zA-z]+:\/\/[^/]*/)
@@ -23,14 +22,12 @@ export default function request(options) {
     const match = parse(url)
     url = compile(url)(data)
 
-
     for (const item of match) {
       if (item instanceof Object && item.name in cloneData) {
         delete cloneData[item.name]
       }
     }
     url = domain + url
-    console.log("🚀 ~ file: request.js ~ line 36 ~ request ~ url", url)
   } catch (e) {
     message.error(e.message)
   }
@@ -42,7 +39,7 @@ export default function request(options) {
       cancel,
     })
   })
-  console.log("url ", url)
+  console.log("url")
   console.log(options)
 
   return axios(options)
@@ -72,10 +69,6 @@ export default function request(options) {
       })
     })
     .catch(error => {
-      console.log("❌error", error)
-      //{url: '/api/v1/user/login', data: {…}, method: 'POST', headers: {…}, cancelToken: CancelToken}
-      //Authorization: "Token 3e9ed2e0fa70a1a5cb6f34eb7a30ebde208ecd8f"
-      //Content-Type: "multipart/form-data"
       const { response, message } = error
 
       if (String(message) === CANCEL_REQUEST_MESSAGE) {
